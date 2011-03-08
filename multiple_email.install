@@ -1,55 +1,77 @@
-<?php 
+<?php
+// $Id$
+
 /**
  * @file
- * Install file for multiple_email module
+ * Install/Update/Uninstall functions for multiple_email module.
  */
 
 /**
- * Implementation of hook_install()
+ * Implements hook_field_schema().
+ */
+function multiple_email_field_schema($field) {
+  $columns = array(
+    'mail' => array(
+      'type' => 'varchar',
+      'length' => 254,
+      'not null' => FALSE
+    ),
+  );
+  $indexes = array(
+    'mail' => array('mail'),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}
+
+/**
+ * Implements hook_install().
  */
 function multiple_email_install() {
-	switch ($GLOBALS['db_type']) {
-		case 'mysql':
-		case 'mysqli':
-			db_query("
-				CREATE TABLE {multiple_email} (
-					eid int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-					uid int(10) UNSIGNED NOT NULL,
-					email varchar(255) NOT NULL,
-					time_registered int(11) UNSIGNED NOT NULL,
-					confirmed tinyint(1) NOT NULL,
-					confirm_code varchar(255) NOT NULL,
-					time_code_generated int(11) UNSIGNED NOT NULL,
-					attempts tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
-					PRIMARY KEY (eid),
-					INDEX uid (uid),
-					INDEX email (email)
-				)  /*!40100 DEFAULT CHARACTER SET utf8 */;
-			");
-			break;
-		case 'pgsql':
-			// Someone should write this...?
-			break;
-	}
-	
-	// Now import current users' emails
-	db_query("
-		INSERT INTO {multiple_email}
-			(uid, email, time_registered, confirmed)
-		SELECT
-			uid,
-			mail,
-			created,
-			IF(login, 1, 0)
-		FROM {users}
-		WHERE uid != 0
-	");
-}
+  // Clear the cache, so field_create_field/field_create_instance can read the
+  // field info provided by this module.
+  field_info_cache_clear();
 
-/**
- * Implementation of hook_uninstall()
- */
-function multiple_email_uninstall() {
-	db_query('DROP TABLE {multiple_email}');
+  // Create a field and instance of the field to store email addresses.
+  $field = array(
+    'indexes' => array('mail' => array('mail')),
+    'field_name' => 'field_multiple_email',
+    'type' => 'multiple_email',
+    'module' => 'multiple_email',
+    'translatable' => FALSE,
+    'active' => TRUE,
+    'locked' => TRUE,
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'deleted' => FALSE,
+    'bundles' => array('user' => array('user')),
+  );
+  field_create_field($field);
+
+  $instance = array(
+    'label' => 'E-mail address',
+    'widget' => array(
+      'type' => 'multiple_email_hidden',
+      'module' => 'multiple_email',
+      'active' => FALSE,
+      'settings' => array(),
+    ),
+    'settings' => array(
+      // This is from user.module.
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'hidden',
+      ),
+    ),
+    'required' => FALSE,
+    'field_name' => 'field_multiple_email',
+    'entity_type' => 'user',
+    'bundle' => 'user',
+    'deleted' => FALSE,
+  );
+  field_create_instance($instance);
 }
-?>

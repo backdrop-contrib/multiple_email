@@ -1,2 +1,5 @@
-name = "Multiple Email Addresses"
-description = "Allows users to have more than one registered email address"
+; $Id$
+
+name = Multiple Email
+description = Allows an account to be associated with multiple email addresses
+core = 7.x
