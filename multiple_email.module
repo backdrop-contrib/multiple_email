@@ -7,6 +7,79 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function multiple_email_menu() {
+  $items = array();
+  
+  $items['user/%user/edit/email-addresses'] = array(
+    'title' => 'E-mail Addresses',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('multiple_email_manage', 1),
+    'access callback' => '_multiple_email_access',
+    'access arguments' => array('pages', 1),
+    'file' => 'multiple_email.manage.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 100,
+  );
+  
+  return $items;
+}
+
+function _multiple_email_access($op, $account, $email = NULL) {
+  global $user;
+  $administer_user = user_access('administer users');
+  // Basic permission check to access any page.
+  // If the account does not have access to use multiple emails, return false
+  // If the account does not belong to the current user and the user does not
+  // have administer users permission, return false
+  if (!user_access('use multiple emails', $account) || ($account->uid != $user->uid && !$administer_user)) {
+    return FALSE;
+  }
+
+  // If we have been given an e-mail address, make sure it belongs to the loaded
+  // account. Since Drupal will fail earlier if multiple_email_load fails, this
+  // is sufficient.
+  if (!empty($email) && $email->uid != $account->uid ) {
+    return FALSE;
+  }
+
+  switch ($op) {
+    case 'pages':
+    case 'confirm':
+      // The above checks are sufficent for these operations.
+      return TRUE;
+
+    case 'primary':
+      // This page only makes sense if the e-mail isn't already the primary
+      // address and the e-mail is confirmed(or this is an admin).
+      if ($email->primary_address == 0 && ($email->confirmed == 1 || $administer_user)) {
+        return TRUE;
+      }
+      break;
+
+    case 'edit':
+      // Administrators should always be able to manage a user.
+      if ($administer_user) {
+        return TRUE;
+      }
+      // Make sure this isn't the primary e-mail and the edit emails flag is enabled.
+      if ($email->primary_address == 0 && variable_get('multiple_email_edit_emails', 0)) {
+        return TRUE;
+      }
+      break;
+
+    case 'delete':
+      if ($email->primary_address == 0) {
+        return TRUE;
+      }
+      break;
+
+  }
+  return FALSE;
+}
+
+/**
  * Implements hook_field_info().
  */
 function multiple_email_field_info() {
