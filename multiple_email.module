@@ -24,7 +24,7 @@ function multiple_email_field_info() {
  * Implements hook_field_is_empty().
  */
 function multiple_email_field_is_empty($item, $field) {
-  return empty($item['mail']);
+  return empty($item['email']);
 }
 
 /**
@@ -112,8 +112,8 @@ function multiple_email_field_widget_form(&$form, &$form_state, $field, $instanc
   foreach ($items as $delta => $item) {
     $elements[$delta] = $element;
     $elements[$delta]['#weight'] = $delta;
-    $elements[$delta]['mail']['#value'] = $item['mail'];
-    $elements[$delta]['mail']['#type'] = 'value';
+    $elements[$delta]['email']['#value'] = $item['email'];
+    $elements[$delta]['email']['#type'] = 'value';
   }
   return $elements;
 }
@@ -124,9 +124,9 @@ function multiple_email_field_widget_form(&$form, &$form_state, $field, $instanc
 function multiple_email_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
   if ($field['type'] == 'multiple_email') {
     $item = end($items);
-    $old_email = $item['mail'];
+    $old_email = $item['email'];
     if ($old_email != $entity->mail) {
-      $items[] = array('mail' => $entity->mail);
+      $items[] = array('email' => $entity->mail);
     }
   }
 }
@@ -151,16 +151,16 @@ function multiple_email_user_account_form_validate($form, &$form_state) {
   $query = new EntityFieldQuery();
   $result = $query
     ->entityCondition('entity_type', 'user')
-    ->fieldCondition('field_multiple_email', 'mail', $form_state['values']['mail'])
+    ->fieldCondition('field_multiple_email', 'email', $form_state['values']['email'])
     ->execute();
   if (!empty($result['user'])) {
     $uids = array_keys($result['user']);
     if ($entity->uid != $uids[0]) {
       if ($GLOBALS['user']->uid) {
-        form_set_error('mail', t('The e-mail address %email is already taken.', array('%email' => $form_state['values']['mail'])));
+        form_set_error('email', t('The e-mail address %email is already taken.', array('%email' => $form_state['values']['email'])));
       }
       else {
-        form_set_error('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', array('%email' => $form_state['values']['mail'], '@password' => url('user/password'))));
+        form_set_error('email', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', array('%email' => $form_state['values']['email'], '@password' => url('user/password'))));
       }
     }
   }
@@ -177,7 +177,7 @@ function multiple_email_user_pass_validate($form, &$form_state) {
   $result = $query
     ->entityCondition('entity_type', 'user')
     ->propertyCondition('status', '1')
-    ->fieldCondition('field_multiple_email', 'mail', $name) // WTF?
+    ->fieldCondition('field_multiple_email', 'email', $name) // WTF?
     ->execute();
 
   if (!empty($result['user'])) {
@@ -204,8 +204,8 @@ function multiple_email_user_pass_submit($form, &$form_state) {
 
   $account = clone $form_state['values']['account'];
   $mails = array($account->mail);
-  foreach ($account->field_multiple_email['und'] as $mail) {
-    $mails[] = $mail['mail'];
+  foreach ($account->field_multiple_email[$language] as $mail) {
+    $mails[] = $mail['email'];
   }
   foreach (array_unique($mails) as $mail) {
     $account->mail = $mail;

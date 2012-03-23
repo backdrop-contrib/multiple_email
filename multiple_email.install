@@ -11,14 +11,40 @@
  */
 function multiple_email_field_schema($field) {
   $columns = array(
-    'mail' => array(
+    'email' => array(
       'type' => 'varchar',
       'length' => 254,
       'not null' => FALSE
     ),
+    'time_registered' => array(
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'confirmed' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+    ),
+    'confirm_code' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+    ),
+    'time_code_generated' => array(
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'attempts' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ),
 );
   $indexes = array(
-    'mail' => array('mail'),
+    'email' => array('mail'),
   );
   return array(
     'columns' => $columns,
@@ -36,7 +62,7 @@ function multiple_email_install() {
 
   // Create a field and instance of the field to store email addresses.
   $field = array(
-    'indexes' => array('mail' => array('mail')),
+    'indexes' => array('email' => array('email')),
     'field_name' => 'field_multiple_email',
     'type' => 'multiple_email',
     'module' => 'multiple_email',
