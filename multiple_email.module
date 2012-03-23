@@ -11,8 +11,8 @@
  */
 function multiple_email_menu() {
   $items = array();
-  
-  $items['user/%user/edit/email-addresses'] = array(
+
+  $items['user/%user/email-addresses'] = array(
     'title' => 'E-mail Addresses',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('multiple_email_manage', 1),
@@ -22,7 +22,7 @@ function multiple_email_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 100,
   );
-  
+
   return $items;
 }
 
@@ -377,4 +377,21 @@ You may add this address again, but you must confirm the address within the spec
 END_MESSAGE;
 
   return $message;
+}
+
+function multiple_email_find_address($email) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'user')
+  ->fieldCondition('field_multiple_email', 'email', strtolower($email), '=');
+
+  $result = $query->execute();
+  if (isset($result['user'])) {
+    $account = array_shift($result['user']);
+  }
+  foreach ($account->field_multiple_email['und'] as $email) {
+    if ($email['email'] == $email) {
+      return $email;
+    }
+  }
+  return FALSE;
 }

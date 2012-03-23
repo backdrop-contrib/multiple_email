@@ -80,21 +80,6 @@ function multiple_email_manage_validate($form, &$form_state) {
 function multiple_email_manage_submit($form, &$form_state) {
   $account = $form['#account'];
 
-  if (!empty($form_state['values']['addresses'])) {
-    foreach ($form_state['values']['addresses'] as $eid => $info) {
-      $email = $form['addresses'][$eid]['#email'];
-      if ($email->confirmed != $info['confirm']) {
-        multiple_email_confirm_email($email, $info['confirm']);
-        if ($info['confirm']) {
-          drupal_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
-        }
-        else {
-          // TODO Provide appropraite message for unconfirming.
-        }
-      }
-    }
-  }
-
   // Add a new e-mail address.
   if ($form_state['values']['email']) {
     $eid = multiple_email_register_email($account->uid, $form_state['values']['email']);
