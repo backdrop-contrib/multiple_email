@@ -44,6 +44,67 @@ function multiple_email_field_widget_info() {
 }
 
 /**
+ * Implements hook_field_widget_settings_form().
+ */
+function multiple_email_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
+  
+  $form['hide_field'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide main e-mail field'),
+    '#description' => t('Hides the e-mail field when editing a user'),
+    '#default_value' => isset($settings['hide_field']) ? $settings['hide_field'] : 1,
+  );
+  $form['edit_emails'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow editing of emails'),
+    '#description' => t('Allows editing of e-mail addresses. It is equivalent to deleting and adding a new e-mail address, as edited emails must be re-confirmed. If enabled, e-mail addresses (excluding primary) may be edited via the multiple e-mail tab.'),
+    '#default_value' => isset($settings['edit_emails']) ? $settings['edit_emails'] : 0,
+  );
+  $form['confirm_attempts'] = array(
+    '#type' => 'textfield',
+    '#size' => 4,
+    '#title' => t('Confirm Attempts'),
+    '#description' => t('How many times a user enters a confirmation code before a new one is generated. If set to 0, no new codes are sent after the first one.'),
+    '#default_value' => isset($settings['confirm_attempts']) ? $settings['confirm_attempts'] : 3,
+  );
+  $form['confirm_deadline'] = array(
+    '#type' => 'textfield',
+    '#size' => 4,
+    '#title' => t('Confirm Days'),
+    '#description' => t('How many days a user has to enter a confirmation code. If 0, emails pending confirmation do not expire.'),
+    '#default_value' => isset($settings['confirm_deadline']) ? $settings['confirm_deadline'] : 5,
+  );
+  $vars = '!username, !site, !email, !confirm_code, !confirm_url, !confirm_deadline';
+  $form['confirmation_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Confirmation E-mail Subject'),
+    '#description' => t('Customize the subject of the message to be sent when a user adds a new e-mail to their account.') . '<br/>' . t('Available variables are:') . $vars,
+    '#default_value' => isset($settings['confirmation_subject']) ? $settings['confirmation_subject'] : multiple_email_default_subject('confirmation'),
+  );
+  $form['confirmation_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Confirmation E-mail Body'),
+    '#description' => t('Customize the body of the message to be sent when a user adds a new e-mail to their account.') . '<br/>' . t('Available variables are:') . $vars,
+    '#default_value' => isset($settings['confirmation_body']) ? $settings['confirmation_body'] : multiple_email_default_body('confirmation'),
+  );
+  $form['expire_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Expire E-mail Subject'),
+    '#description' => t('Customize the subject of the message to be sent when an unconfirmed e-mail address expires.') . '<br/>' . t('Available variables are:') . $vars,
+    '#default_value' => isset($settings['expire_subject']) ? $settings['expire_subject'] : multiple_email_default_subject('expire'),
+  );
+  $form['expire_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Expire E-mail Body'),
+    '#description' => t('Customize the body of the message to be sent when an unconfirmed e-mail address expires.') . '<br/>' . t('Available variables are:') . $vars,
+    '#default_value' => isset($settings['expire_body']) ? $settings['expire_body'] : multiple_email_default_body('expire'),
+  );
+  return $form;
+}
+
+/**
  * Implements hook_field_widget_form().
  */
 function multiple_email_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
@@ -116,7 +177,7 @@ function multiple_email_user_pass_validate($form, &$form_state) {
   $result = $query
     ->entityCondition('entity_type', 'user')
     ->propertyCondition('status', '1')
-    ->fieldCondition('field_multiple_email', 'mail', $name)
+    ->fieldCondition('field_multiple_email', 'mail', $name) // WTF?
     ->execute();
 
   if (!empty($result['user'])) {
@@ -153,4 +214,94 @@ function multiple_email_user_pass_submit($form, &$form_state) {
   }
   drupal_set_message(t('Further instructions have been sent to your e-mail address.'));
   $form_state['redirect'] = 'user';
+}
+
+function multiple_email_default_subject($type) {
+  $subjects = array(
+    'confirmation' => 'Confirm your e-mail address at !site',
+    'expire' => 'Your e-mail address at !site has expired',
+  );
+  return $subjects[$type];
+}
+
+/**
+ * Returns the module's default message for the specified message type
+ *
+ * @param string $type
+ *
+ * @return string
+ */
+function multiple_email_default_body($type) {
+  $func = "multiple_email_default_{$type}_body";
+  return $func();
+}
+
+/**
+ * Replaces various tokens with their value
+ *
+ * Valid tokens:
+ * !username (User's username)
+ * !site (Site's name)
+ * !email (E-mail address in question)
+ * !confirm_code (E-mail's confirmation code)
+ * !confirm_url (URL to confirmation page for address)
+ * !confirm_deadline (Human-readable time within which to confirm)
+ *
+ * @param string $text
+ * @param object $account
+ * @param object $email
+ *
+ * @return string
+ */
+function multiple_email_var_replace($text, $account, $email) {
+  $deadline = variable_get('multiple_email_confirm_deadline', 5);
+  $vars = array(
+    '!username' => $account->name,
+    '!email' => $email->email,
+    '!site' => variable_get('site_name', 'our web site'),
+    '!confirm_code' => $email->confirm_code,
+    '!confirm_url' => url('user/' . $email->uid . '/edit/email-addresses/confirm/' . $email->eid . '/' . $email->confirm_code, array('absolute' => TRUE)),
+    '!confirm_deadline' => ($deadline ? format_plural($deadline, t('1 day'), t('@days days', array('@days' => $deadline))) : t('unlimited days')),
+  );
+  return str_ireplace(array_keys($vars), array_values($vars), $text);
+}
+
+/**
+ * Returns the default confirmation message for use upon installation or if
+ * for some reason the variable doesn't exist.
+ *
+ * @return string
+ */
+function multiple_email_default_confirmation_body() {
+  $message = <<<END_MESSAGE
+!username,
+
+You have added the e-mail address '!email' to your account at !site. In order to complete the registration of this email, you must confirm it by clicking the link below and entering this confirmation code: !confirm_code
+
+!confirm_url
+
+If the web address does not appear as a link, you must copy the address out of this email, and paste it into the address bar of your web browser.
+
+If you do not confirm this e-mail in !confirm_deadline, it will be unregistered from your account.
+END_MESSAGE;
+
+  return $message;
+}
+
+/**
+ * Returns the default message sent to a user when they have failed to confirm
+ * an e-mail address within the deadline.
+ *
+ * @return string
+ */
+function multiple_email_default_expire_body() {
+  $message = <<<END_MESSAGE
+!username,
+
+You have failed to confirm the the e-mail address '!email' within the confirmation period of !confirm_deadline. Therefore, the e-mail address has been removed from your account.
+
+You may add this address again, but you must confirm the address within the specified deadline!
+END_MESSAGE;
+
+  return $message;
 }

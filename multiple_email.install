@@ -16,7 +16,7 @@ function multiple_email_field_schema($field) {
       'length' => 254,
       'not null' => FALSE
     ),
-  );
+);
   $indexes = array(
     'mail' => array('mail'),
   );
@@ -42,7 +42,7 @@ function multiple_email_install() {
     'module' => 'multiple_email',
     'translatable' => FALSE,
     'active' => TRUE,
-    'locked' => TRUE,
+    'locked' => FALSE,
     'cardinality' => FIELD_CARDINALITY_UNLIMITED,
     'deleted' => FALSE,
     'bundles' => array('user' => array('user')),
