@@ -24,7 +24,8 @@ function multiple_email_manage($form, &$form_state, $account) {
     $form['addresses'][$email->eid] = array(
       '#email' => $email,
       'email' => array(
-        '#value' => $email->email,
+        '#type' => 'item',
+        '#markup' => $email->email,
       ),
     );
     if (user_access('administer users')) {
