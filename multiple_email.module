@@ -110,7 +110,9 @@ function multiple_email_menu() {
 
 function _multiple_email_access($op, $account, $email = NULL) {
   global $user;
-  $administer_user = user_access('administer users');
+  if ($administer_user = user_access('administer users')) {
+    return TRUE;
+  }
   // Basic permission check to access any page.
   // If the account does not have access to use multiple emails, return false
   // If the account does not belong to the current user and the user does not
@@ -141,10 +143,6 @@ function _multiple_email_access($op, $account, $email = NULL) {
       break;
 
     case 'edit':
-      // Administrators should always be able to manage a user.
-      if ($administer_user) {
-        return TRUE;
-      }
       // Make sure this isn't the primary e-mail and the edit emails flag is enabled.
       if ($email->primary_address == 0 && variable_get('multiple_email_edit_emails', 0)) {
         return TRUE;
@@ -152,7 +150,7 @@ function _multiple_email_access($op, $account, $email = NULL) {
       break;
 
     case 'delete':
-      if ($email->primary_address == 0) {
+      if (is_object($email) && $email->primary_address == 0) {
         return TRUE;
       }
       break;
@@ -456,17 +454,23 @@ function multiple_email_load_addresses($uid, $tablesortHeaders = NULL) {
  * Loads a single address from the e-mail registry and returns it as an object.
  *
  * @param integer $eid
- * @param integer $reset
  *
  * @return object
  */
-function multiple_email_load($eids, $reset = FALSE) {
-  foreach ($eids as $nid => &$eid) {
-    static $emails = array();
-    if (!empty($reset)) {
-      $emails = array();
-    }
-    if (!empty($eid) && empty($emails[$eid])) {
+function multiple_email_load($eid) {
+    if (is_numeric($eid)) {
+      $query = db_select('multiple_email', 'me')
+        ->fields('me')
+        ->condition('me.eid', $eid);
+      $query->addJoin('INNER', 'users', 'u', 'u.uid = me.uid');
+      $query->addExpression('IF(LOWER(me.email) = LOWER(u.mail), 1, 0)', 'primary_address');        
+
+      $result = $query->execute();
+      
+      return $result->fetchObject();
+      
+      /*
+      // Converted to PDO above.
       $emails[$eid] = db_fetch_object(db_query("
       SELECT
         a.eid,
@@ -484,11 +488,14 @@ function multiple_email_load($eids, $reset = FALSE) {
       INNER JOIN {users} u ON (u.uid = a.uid)
       WHERE
         a.eid = %d", $eid));
-    }
+     
+    // I have no idea what this bit of code is for. Doesn't seem to do anything.
     $node_additions = !empty($eid) && !empty($emails[$eid]) ? $emails[$eid] : FALSE;
     foreach ($node_additions as $property => &$value) {
       $eid->$property = $value;
     }
+     * 
+     */
   }
 }
 
@@ -540,8 +547,19 @@ function multiple_email_find_address($email) {
  */
 function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = NULL) {
   
-  // TODO: Make this a db_update query.
   if ($eid) {
+    $query = db_update('multiple_email')
+      ->fields(array(
+        'email' => $email,
+        'time_registered' => REQUEST_TIME,
+        'confirmed' => (int) $confirmed,
+        'confirm_code' => $code = multiple_email_code(),
+        'time_code_generated' => REQUEST_TIME,
+      ))
+      ->condition('eid', $eid);
+    $success = $query->execute();
+    
+    /* Removed in favor of the db_update query above.
     $success = db_query("
       UPDATE {multiple_email}
       SET
@@ -552,12 +570,14 @@ function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = 
         time_code_generated = %d
       WHERE
         eid = %d", $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME, $eid);
+     * 
+     */
   }
   else {
     $query = db_insert('multiple_email')
       ->fields(array('uid','email','time_registered','confirmed','confirm_code','time_code_generated'),
               array($uid, $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME));
-    $success = $query->execute();
+    $success = ($eid = $query->execute());
     /*
     $success = db_query("
       INSERT INTO {multiple_email}
@@ -571,7 +591,7 @@ function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = 
     if (!$eid) {
       $eid = db_last_insert_id('multiple_email', 'eid');
     }
-    $email = multiple_email_load($eid, TRUE);
+    $email = multiple_email_load($eid);
     // Fires off hook_multiple_email_register().
     module_invoke_all('multiple_email_register', $email);
     return $eid;
@@ -593,14 +613,20 @@ function multiple_email_confirm_email($email, $confirm = TRUE) {
   $confirm = $confirm ? 1 : 0;
   watchdog('Multiple E-mail', 'Marking address %email confirmed for user !uid',
     array('%email' => $email->email, '!uid' => $email->uid),
+    WATCHDOG_NOTICE,
     l(t('edit'), "user/$email->uid"));
+  $query = db_update('multiple_email')
+    ->fields(array('confirmed' => $confirm))
+    ->condition('eid', $email->eid)
+    ->execute();
+  /* Removed in favor of the above PDO query.
   db_query("
     UPDATE {multiple_email} SET
       confirmed = %d
     WHERE
       eid = %d", $confirm, $email->eid);
+   */
   $email->confirmed = $confirm;
-  multiple_email_load(FALSE, TRUE);
   // Fires off hook_multiple_email_confirm().
   module_invoke_all('multiple_email_confirm', $email);
 }
