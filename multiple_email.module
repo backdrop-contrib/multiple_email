@@ -588,9 +588,6 @@ function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = 
   }
 
   if ($success !== FALSE) {
-    if (!$eid) {
-      $eid = db_last_insert_id('multiple_email', 'eid');
-    }
     $email = multiple_email_load($eid);
     // Fires off hook_multiple_email_register().
     module_invoke_all('multiple_email_register', $email);
@@ -680,10 +677,8 @@ function multiple_email_delete_email($eid) {
  * @param object $email
  */
 function multiple_email_make_primary($email) {
-  $account = new stdClass();
-  $account->uid = $email->uid;
+  $account = user_load($email->uid);
   user_save($account, array('mail' => $email->email));
-  multiple_email_load(NULL, TRUE);
 }
 
 /**
