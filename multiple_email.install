@@ -1,103 +1,123 @@
 <?php
-// $Id$
+// $Id: multiple_email.install,v 1.1.4.11 2011/02/07 21:10:52 shawndearmond Exp $
 
 /**
  * @file
- * Install/Update/Uninstall functions for multiple_email module.
+ * Install file for multiple_email module
  */
-
-/**
- * Implements hook_field_schema().
- */
-function multiple_email_field_schema($field) {
-  $columns = array(
-    'email' => array(
-      'type' => 'varchar',
-      'length' => 254,
-      'not null' => FALSE
-    ),
-    'time_registered' => array(
-      'type' => 'int',
-      'not null' => TRUE,
-      'default' => 0,
-    ),
-    'confirmed' => array(
-      'type' => 'int',
-      'unsigned' => TRUE,
-      'not null' => TRUE,
-    ),
-    'confirm_code' => array(
-      'type' => 'varchar',
-      'length' => 255,
-      'not null' => TRUE,
-    ),
-    'time_code_generated' => array(
-      'type' => 'int',
-      'not null' => TRUE,
-      'default' => 0,
-    ),
-    'attempts' => array(
-      'type' => 'int',
-      'unsigned' => TRUE,
-      'not null' => TRUE,
-      'default' => 0,
-    ),
-);
-  $indexes = array(
-    'email' => array('mail'),
-  );
-  return array(
-    'columns' => $columns,
-    'indexes' => $indexes,
-  );
-}
 
 /**
  * Implements hook_install().
  */
 function multiple_email_install() {
-  // Clear the cache, so field_create_field/field_create_instance can read the
-  // field info provided by this module.
-  field_info_cache_clear();
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_install_schema('multiple_email')
 
-  // Create a field and instance of the field to store email addresses.
-  $field = array(
-    'indexes' => array('email' => array('email')),
-    'field_name' => 'field_multiple_email',
-    'type' => 'multiple_email',
-    'module' => 'multiple_email',
-    'translatable' => FALSE,
-    'active' => TRUE,
-    'locked' => FALSE,
-    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
-    'deleted' => FALSE,
-    'bundles' => array('user' => array('user')),
+  // Now import current users' emails.
+  db_query("
+    INSERT INTO {multiple_email}
+      (uid, email, time_registered, confirmed)
+    SELECT
+      uid,
+      mail,
+      created,
+      1
+    FROM {users}
+    WHERE uid != 0
+    AND mail != ''
+    GROUP BY mail
+  ");
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function multiple_email_uninstall() {
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('multiple_email')
+  $variables = array(
+    'multiple_email_hide_field',
+    'multiple_email_edit_emails',
+    'multiple_email_confirm_deadline',
+    'multiple_email_confirm_attempts',
+    'multiple_email_confirmation_subject',
+    'multiple_email_confirmation_body',
+    'multiple_email_expire_subject',
+    'multiple_email_expire_body',
   );
-  field_create_field($field);
+  foreach ($variables as $key) {
+    variable_del($key);
+  }
+}
 
-  $instance = array(
-    'label' => 'E-mail address',
-    'widget' => array(
-      'type' => 'multiple_email_hidden',
-      'module' => 'multiple_email',
-      'active' => FALSE,
-      'settings' => array(),
-    ),
-    'settings' => array(
-      // This is from user.module.
-      'user_register_form' => FALSE,
-    ),
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'type' => 'hidden',
+/**
+ * Implements hook_enable().
+ */
+function multiple_email_enable() {
+  drupal_set_message(t("Multiple E-mail settings are available under !link", array(
+    '!link' => l('Administer > Site configuration > Multiple E-mail Settings ', 'admin/config/multiple-email'),
+  )));
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function multiple_email_schema() {
+  $schema['multiple_email'] = array(
+    'description' => 'The base table for multiple email.',
+    'fields' => array(
+      'eid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'email' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'time_registered' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'confirmed' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'confirm_code' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'time_code_generated' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'attempts' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
       ),
     ),
-    'required' => FALSE,
-    'field_name' => 'field_multiple_email',
-    'entity_type' => 'user',
-    'bundle' => 'user',
-    'deleted' => FALSE,
+    'indexes' => array(
+      'uid' => array('uid'),
+    ),
+    'unique keys' => array(
+      'email' => array('email'),
+    ),
+    'primary key' => array('eid'),
   );
-  field_create_instance($instance);
+
+  return $schema;
 }
+
