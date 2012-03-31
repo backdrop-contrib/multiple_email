@@ -510,7 +510,14 @@ function multiple_email_get_address($eid) {
  * @return mixed
  */
 function multiple_email_find_address($email) {
-  $eid = db_query("SELECT eid FROM {multiple_email} WHERE LOWER(email) = :LOWER(email)", array(':LOWER(email)' => LOWER('%s'), '' => $email))->fetchField();
+  $query = db_select('multiple_email', 'me');
+  $query->addField('me', 'eid');
+  $query->where('LOWER(me.email) = :email', array(':email' => strtolower($email)));
+  $result = $query->execute();
+  $eid = $result->fetchField();
+  
+  
+  //$eid = db_query("SELECT eid FROM {multiple_email} WHERE LOWER(email) = :LOWER(email)", array(':LOWER(email)' => LOWER('%s'), '' => $email))->fetchField();
   if ($eid) {
     return multiple_email_load($eid);
   }
@@ -532,6 +539,8 @@ function multiple_email_find_address($email) {
  * @return mixed
  */
 function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = NULL) {
+  
+  // TODO: Make this a db_update query.
   if ($eid) {
     $success = db_query("
       UPDATE {multiple_email}
@@ -545,11 +554,17 @@ function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = 
         eid = %d", $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME, $eid);
   }
   else {
+    $query = db_insert('multiple_email')
+      ->fields(array('uid','email','time_registered','confirmed','confirm_code','time_code_generated'),
+              array($uid, $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME));
+    $success = $query->execute();
+    /*
     $success = db_query("
       INSERT INTO {multiple_email}
         (`uid`,`email`,`time_registered`,`confirmed`,`confirm_code`,`time_code_generated`)
       VALUES
         (%d, '%s', %d, %d, '%s', %d)", $uid, $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME);
+    */
   }
 
   if ($success !== FALSE) {
