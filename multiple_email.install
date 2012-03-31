@@ -96,6 +96,7 @@ function multiple_email_schema() {
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
+        'default' => multiple_email_code(),
       ),
       'time_code_generated' => array(
         'type' => 'int',
