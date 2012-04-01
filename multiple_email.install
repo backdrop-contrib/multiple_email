@@ -55,7 +55,7 @@ function multiple_email_uninstall() {
  */
 function multiple_email_enable() {
   drupal_set_message(t("Multiple E-mail settings are available under !link", array(
-    '!link' => l('Administer > Site configuration > Multiple E-mail Settings ', 'admin/config/multiple-email'),
+    '!link' => l('Administer > Configuration > People > Multiple E-mail Settings ', 'admin/config/people/multiple-email'),
   )));
 }
 

@@ -9,12 +9,12 @@
 /**
  * Implements hook_help().
  */
-function multiple_email_help($section, $arg) {
-  switch ($section) {
+function multiple_email_help($path, $arg) {
+  switch ($path) {
     case 'admin/help#multiple_email':
     case 'admin/help/multiple_email':
-      $path = drupal_get_path('module', 'multiple_email') . "/README.txt";
-      return filter_filter('process', 2, NULL, file_get_contents($path));
+      $file = drupal_get_path('module', 'multiple_email') . "/README.txt";
+      return check_markup(file_get_contents($file), 'filtered_html');
   }
 }
 
@@ -37,8 +37,8 @@ function multiple_email_permission() {
 function multiple_email_menu() {
   $items = array();
 
-  $items['admin/config/multiple-email'] = array(
-    'title' => t('Multiple E-mail Settings'),
+  $items['admin/config/people/multiple-email'] = array(
+    'title' => t('Multiple E-mails'),
     'description' => t('Control behavior of the Multiple E-mail Addresses module'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('multiple_email_admin_settings'),
@@ -110,9 +110,7 @@ function multiple_email_menu() {
 
 function _multiple_email_access($op, $account, $email = NULL) {
   global $user;
-  if ($administer_user = user_access('administer users')) {
-    return TRUE;
-  }
+  $administer_user = user_access('administer users');
   // Basic permission check to access any page.
   // If the account does not have access to use multiple emails, return false
   // If the account does not belong to the current user and the user does not
