@@ -55,7 +55,7 @@ function multiple_email_confirm_form($form, &$form_state, $account, $email, $con
 
   $form[] = array(
     '#type' => 'markup',
-    '#value' => '<p>' . t('The e-mail address %email is awaiting confirmation. You should have received an e-mail at that address with a confirmation code in it. Enter the code below and click confirm. If you have lost this e-mail or did not recieve a confirmation code you can try <a href="!resend">resending</a> it.', array(
+    '#markup' => '<p>' . t('The e-mail address %email is awaiting confirmation. You should have received an e-mail at that address with a confirmation code in it. Enter the code below and click confirm. If you have lost this e-mail or did not recieve a confirmation code you can try <a href="!resend">resending</a> it.', array(
       '%email' => $email->email,
       '!resend' => url('user/' . $account->uid . '/edit/email-addresses/confirm/' . $email->eid . '/resend'),
     )) . '</p>',
