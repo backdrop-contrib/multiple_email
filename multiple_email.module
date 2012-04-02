@@ -38,15 +38,15 @@ function multiple_email_menu() {
   $items = array();
 
   $items['admin/config/people/multiple-email'] = array(
-    'title' => t('Multiple E-mails'),
-    'description' => t('Control behavior of the Multiple E-mail Addresses module'),
+    'title' => 'Multiple E-mails',
+    'description' => 'Control behavior of the Multiple E-mail Addresses module',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('multiple_email_admin_settings'),
     'access arguments' => array('administer users'),
   );
 
   $items['user/%user/edit/email-addresses/view'] = array(
-    'title' => t('View E-mail Addresses'),
+    'title' => 'View E-mail Addresses',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('multiple_email_manage', 1),
     'access callback' => '_multiple_email_access',
@@ -57,7 +57,7 @@ function multiple_email_menu() {
   );
 
   $items['user/%user/edit/email-addresses/confirm/%multiple_email'] = array(
-    'title' => t('Confirm E-mail Address'),
+    'title' => 'Confirm E-mail Address',
     'page callback' => 'multiple_email_confirm_page',
     'page arguments' => array(1, 5),
     'access callback' => TRUE,
@@ -66,7 +66,7 @@ function multiple_email_menu() {
   );
 
   $items['user/%user/edit/email-addresses/confirm/%multiple_email/resend'] = array(
-    'title' => t('Confirm E-mail Address'),
+    'title' => 'Confirm E-mail Address',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('multiple_email_confirm_page_resend', 1, 5),
     'access callback' => '_multiple_email_access',
@@ -76,7 +76,7 @@ function multiple_email_menu() {
   );
 
   $items['user/%user/edit/email-addresses/primary/%multiple_email'] = array(
-    'title' => t('Make E-mail Primary Address'),
+    'title' => 'Make E-mail Primary Address',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('multiple_email_primary_form', 1, 5),
     'access callback' => '_multiple_email_access',
@@ -86,7 +86,7 @@ function multiple_email_menu() {
   );
 
   $items['user/%user/edit/email-addresses/edit/%multiple_email'] = array(
-    'title' => t('Edit E-mail Address'),
+    'title' => 'Edit E-mail Address',
     'page callback' => 'multiple_email_edit_page',
     'page arguments' => array(1, 5),
     'access callback' => '_multiple_email_access',
@@ -96,7 +96,7 @@ function multiple_email_menu() {
   );
 
   $items['user/%user/edit/email-addresses/delete/%multiple_email'] = array(
-    'title' => t('Delete E-mail Address'),
+    'title' => 'Delete E-mail Address',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('multiple_email_delete_form', 1, 5),
     'access callback' => '_multiple_email_access',
@@ -583,7 +583,7 @@ function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = 
   }
   else {
     $query = db_insert('multiple_email')
-      ->fields(array('uid','email','time_registered','confirmed','confirm_code','time_code_generated'),
+      ->fields(array('uid', 'email', 'time_registered', 'confirmed', 'confirm_code', 'time_code_generated'),
               array($uid, $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME));
     $success = ($eid = $query->execute());
     /*
