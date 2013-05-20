@@ -283,11 +283,12 @@ function multiple_email_theme() {
  */
 function multiple_email_form_user_profile_form_alter(&$form, $form_state) {
   // Disable e-mail address field on main user/edit form when user has 'use multiple emails' access.
-  if (user_access('use multiple emails', $form['#user']) &&
+  if (isset($form['account']['mail']) &&
+      user_access('use multiple emails', $form['#user']) &&
       variable_get('multiple_email_hide_field', TRUE)) {
     $form['account']['mail']['#disabled'] = TRUE;
     $form['account']['mail']['#required'] = FALSE;
-    $form['account']['mail']['#value'] = $form['account']['mail']['#default_value'];
+    $form['account']['mail']['#value'] = !empty($form['account']['mail']['#default_value']) ? $form['account']['mail']['#default_value'] : '';
     $form['account']['mail']['#description'] = t('E-mail addresses are managed on the !multiple_email tab.', array('!multiple_email' => l(t('E-mail addresses'), 'user/' . $form['#user']->uid . '/edit/email-addresses')));
   }
 }
