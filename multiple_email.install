@@ -121,3 +121,13 @@ function multiple_email_schema() {
   return $schema;
 }
 
+/**
+ * Remove email addresses of deleted users
+ */
+function multiple_email_update_7100() {
+  $subquery = db_select('users', 'u');
+  $subquery->addField('u', 'uid');
+  $query = db_delete('multiple_email');
+  $query->condition('uid', $subquery, 'NOT IN');
+  $query->execute();
+}

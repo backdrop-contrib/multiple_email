@@ -201,15 +201,16 @@ function multiple_email_user_insert(&$edit, $account, $category) {
 }
 
 /**
- * Implements hook_user_cancel().
+ * Implements hook_user_delete().
+ *
+ * This replaces hook_user_cancel() because disabled users should still have a
+ * record of their registered email addresses.
  */
-function multiple_email_user_cancel($edit, $account, $method) {
-  // delete Multiple E-mails from the deleting user.
-  // TODO Please review the conversion of this statement to the D7 database API syntax.
-  /* db_query("DELETE FROM {multiple_email} WHERE uid = %d", $account->uid) */
+function multiple_email_user_delete($account) {
+  // delete Multiple E-mails from the deleted user.
   db_delete('multiple_email')
-  ->condition('uid', $account->uid)
-  ->execute();
+    ->condition('uid', $account->uid)
+    ->execute();
 }
 
 /**
