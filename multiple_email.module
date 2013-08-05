@@ -241,7 +241,7 @@ function multiple_email_user_update(&$edit, $account, $category) {
     if (empty($object)) {
       // If an administer is making a change or user doesn't have
       // multiple emails permission, mark as confirmed.
-      $confirmed = user_access('adminster users') || !user_access('use multiple emails', $account);
+      $confirmed = user_access('administer users') || !user_access('use multiple emails', $account);
       // confirm if action done by administer
       $eid = multiple_email_register_email($account->uid, $edit['mail'], $confirmed);
       if (empty($confirmed) && !empty($eid)) {
