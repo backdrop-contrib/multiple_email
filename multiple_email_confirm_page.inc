@@ -152,7 +152,7 @@ function multiple_email_confirm_form_submit($form, &$form_state) {
  * Multiple E-Mails email object.
  */
 function multiple_email_confirm_page_resend($form, &$form_state, $account, $email) {
-  $msg = t('Please make sure that %email is correct typed. If not, please <a href="!delete">delete</a> it and add the correct address.', array(
+  $msg = t('Please make sure that %email is correct. If not, please <a href="!delete">delete</a> it and add the correct address.', array(
     '%email' => $email->email,
     '!delete' => url('user/' . $account->uid . '/edit/email-addresses/delete/' . $email->eid),
   ));
