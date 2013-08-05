@@ -299,30 +299,15 @@ function multiple_email_form_user_profile_form_alter(&$form, $form_state) {
 function multiple_email_cron() {
   $deadline = (int) variable_get('multiple_email_confirm_deadline', 5);
   if ($deadline) {
-    $query = db_select('multiple_email', 'me')
-      ->fields('me', array('eid', 'time_code_generated'));
-    $query->addJoin('INNER', 'users', 'u', 'u.uid = me.uid');
-    $query->addExpression('IF(LOWER(me.email) = LOWER(u.mail), 1, 0)', 'primary_address');        
-
-    $result = $query->execute();
-    
-    /* Replaced with db_select() above.
-    $result = db_query("
-      SELECT
-        e.eid,
-        e.time_code_generated,
-        IF(LOWER(u.mail) = LOWER(e.email), 1, 0) as primary_address
-      FROM
-        {multiple_email} e
-        INNER JOIN {users} u ON (u.uid = e.uid)
-      WHERE confirmed=0");
-     * 
-     */
-    $now = REQUEST_TIME;
-    while ($row = $result->fetchObject()) {
-      if (strtotime("+$deadline days", $row->time_code_generated) <= $now && !$row->primary_address) {
-        multiple_email_expire_address($row->eid);
-      }
+    $query = db_select('multiple_email', 'me');
+    $query->fields('me', array('eid'));
+    $query->join('users', 'u', 'u.uid = me.uid');
+    $query->condition('me.confirmed', 0);
+    $query->condition('me.time_code_generated', strtotime('-' . $deadline . ' days'), '<');
+    $query->condition('me.email', 'u.mail', 'NOT LIKE');
+    $result = $query->execute()->fetchCol();
+    foreach ($result as $eid) {
+      multiple_email_expire_address($eid);
     }
   }
 }
