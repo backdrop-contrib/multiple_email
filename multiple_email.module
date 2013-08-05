@@ -528,12 +528,10 @@ function multiple_email_get_address($eid) {
 function multiple_email_find_address($email) {
   $query = db_select('multiple_email', 'me');
   $query->addField('me', 'eid');
-  $query->where('LOWER(me.email) = :email', array(':email' => strtolower($email)));
+  $query->condition('me.email', db_like($email), 'LIKE');
   $result = $query->execute();
   $eid = $result->fetchField();
-  
-  
-  //$eid = db_query("SELECT eid FROM {multiple_email} WHERE LOWER(email) = :LOWER(email)", array(':LOWER(email)' => LOWER('%s'), '' => $email))->fetchField();
+
   if ($eid) {
     return multiple_email_load($eid);
   }
