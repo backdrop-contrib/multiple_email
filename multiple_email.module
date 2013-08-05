@@ -804,12 +804,13 @@ function multiple_email_default_body($type) {
  */
 function multiple_email_var_replace($text, $account, $email) {
   $deadline = variable_get('multiple_email_confirm_deadline', 5);
+  $query = array('destination' => 'user/' . $email->uid . '/edit/email-addresses/confirm/' . $email->eid . '/' . $email->confirm_code);
   $vars = array(
     '!username' => $account->name,
     '!email' => $email->email,
     '!site' => variable_get('site_name', 'our web site'),
     '!confirm_code' => $email->confirm_code,
-    '!confirm_url' => url('user/' . $email->uid . '/edit/email-addresses/confirm/' . $email->eid . '/' . $email->confirm_code, array('absolute' => TRUE)),
+    '!confirm_url' => url('user/login', array('query' => $query, 'absolute' => TRUE)),
     '!confirm_deadline' => ($deadline ? format_plural($deadline, t('1 day'), t('@days days', array('@days' => $deadline))) : t('unlimited days')),
   );
   return str_ireplace(array_keys($vars), array_values($vars), $text);
