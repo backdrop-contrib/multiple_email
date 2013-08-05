@@ -1,5 +1,3 @@
-/* $Id: README.txt,v 1.1.4.3 2011/01/11 04:35:44 shawndearmond Exp $ */
-
 Module: Multiple E-mail Addresses
 Original Author: Joshua Benner <joshbenner@gmail.com>
 Sponsor of Drupal 5 version: Rock River Star (www.rockriverstar.com) -- My employer

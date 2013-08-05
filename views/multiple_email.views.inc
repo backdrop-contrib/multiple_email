@@ -1,5 +1,4 @@
 <?php
-// $Id: multiple_email.views.inc,v 1.1.2.6 2011/01/11 04:35:44 shawndearmond Exp $
 
 /**
  * Implements hook_views_handlers().

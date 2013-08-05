@@ -1,5 +1,4 @@
 <?php
-// $Id: multiple_email_handler_filter_current.inc,v 1.1.2.4 2011/01/11 04:35:44 shawndearmond Exp $
 
 /**
  * @file

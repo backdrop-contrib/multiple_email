@@ -1,5 +1,4 @@
 <?php
-// $Id: multiple_email.api.php,v 1.1.2.1 2011/02/21 01:50:28 shawndearmond Exp $
 
 /**
  * @file

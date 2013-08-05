@@ -1,5 +1,4 @@
 <?php
-// $Id: multiple_email_primary_page.inc,v 1.1.4.8 2011/01/11 04:35:44 shawndearmond Exp $
 
 /**
  * @file
