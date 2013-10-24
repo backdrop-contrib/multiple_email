@@ -141,7 +141,7 @@ function _multiple_email_access($op, $account, $email = NULL) {
 
     case 'edit':
       // Make sure this isn't the primary e-mail and the edit emails flag is enabled.
-      if ($email->primary_address == 0 && variable_get('multiple_email_edit_emails', 0)) {
+      if (($email->primary_address == 0 && variable_get('multiple_email_edit_emails', 0)) || $administer_user) {
         return TRUE;
       }
       break;
