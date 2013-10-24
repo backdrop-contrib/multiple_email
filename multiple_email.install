@@ -7,12 +7,10 @@
 
 /**
  * Implements hook_install().
+ *
+ * Imports current users' emails.
  */
 function multiple_email_install() {
-  // TODO The drupal_(un)install_schema functions are called automatically in D7.
-  // drupal_install_schema('multiple_email')
-
-  // Now import current users' emails.
   db_query("
     INSERT INTO {multiple_email}
       (uid, email, time_registered, confirmed)
@@ -32,8 +30,6 @@ function multiple_email_install() {
  * Implements hook_uninstall().
  */
 function multiple_email_uninstall() {
-  // TODO The drupal_(un)install_schema functions are called automatically in D7.
-  // drupal_uninstall_schema('multiple_email')
   $variables = array(
     'multiple_email_hide_field',
     'multiple_email_edit_emails',
@@ -59,8 +55,7 @@ function multiple_email_enable() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Implements hook_schema().
  */
 function multiple_email_schema() {
   $schema['multiple_email'] = array(

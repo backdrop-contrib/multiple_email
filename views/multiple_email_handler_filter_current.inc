@@ -33,4 +33,3 @@ class multiple_email_handler_filter_current extends views_handler_filter_boolean
     $this->query->add_where($this->options['group'], $where);
   }
 }
-
