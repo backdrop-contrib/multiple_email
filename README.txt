@@ -32,3 +32,7 @@ hook_multiple_email_register($email)
 hook_multiple_email_confirm($email)
   - $email is the e-mail object that has just been registered
   - Use this hook to perform actions when a user confirms an e-mail address
+
+hook_multiple_email_delete($eid)
+  - $eid is the e-mail object ID that has just been deleted
+  - Use this hook to perform actions when a user deletes an e-mail address
