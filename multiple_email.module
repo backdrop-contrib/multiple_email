@@ -214,19 +214,32 @@ function multiple_email_user_delete($account) {
 }
 
 /**
- * Implements hook_user_presave().
+ * Implements hook_form_BASE_FORM_ID_alter().
+ *
+ * Adds a custom validator to the user registration form to check if the email
+ * address in not already in use.
  */
-function multiple_email_user_presave(&$edit, $account, $category) {
-  if (!empty($edit['mail'])) {
-    $mail = multiple_email_find_address($edit['mail']);
+function multiple_email_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+  $form['account']['mail']['#element_validate'][] = '_multiple_email_user_register_form_validate';
+}
+
+/**
+ * Custom validator for the user registration form.
+ *
+ * Check if the typed mail is already in use by another user.
+ */
+function _multiple_email_user_register_form_validate($element, &$form_state, $form) {
+  $mail = $element['#value'];
+  if (!empty($mail)) {
+    $email = multiple_email_find_address($mail);
     // If this is an email
-    if (!empty($mail)
-          // If this is not a primary email. Primary e-mail is checked by core.
-           && empty($mail->primary_address)
-          // If annoymous or mail isn't current user.
-           && (empty($account->uid) || $account->uid != $mail->uid)
-        ) {
-      form_set_error('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', array('%email' => $edit['mail'], '@password' => url('user/password'))));
+    if (!empty($email)
+      // If this is not a primary email. Primary e-mail is checked by core.
+      && empty($email->primary_address)
+      // If annoymous or mail isn't current user.
+      && (empty($account->uid) || $account->uid != $email->uid)
+    ) {
+      form_error($element, t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', array('%email' => $mail, '@password' => url('user/password'))));
     }
   }
 }
