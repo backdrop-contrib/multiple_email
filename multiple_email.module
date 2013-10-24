@@ -245,7 +245,7 @@ function multiple_email_user_update(&$edit, $account, $category) {
       // confirm if action done by administer
       $eid = multiple_email_register_email($account->uid, $edit['mail'], $confirmed);
       if (empty($confirmed) && !empty($eid)) {
-        multiple_email_send_confirmation($account, $edit['mail']);
+        multiple_email_send_confirmation($account, multiple_email_load($eid));
       }
     }
   }
