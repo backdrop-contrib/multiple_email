@@ -123,6 +123,30 @@ class MultipleEmailUserTestCase extends DrupalWebTestCase {
     $this->assertRaw($this->loggedInUser->mail, t('Primary e-mail address, @email, found after user edit form', array('@email' => $this->loggedInUser->mail)));
     $this->assertNoText(t('You must enter an e-mail address.'));
   }
+
+  function testNoEmailsError() {
+    // Test that the e-mail address appears on the page
+    $this->drupalGet('user/' . $this->loggedInUser->uid . '/edit/email-addresses');
+    $this->assertText($this->loggedInUser->mail, t('Registered e-mail successfully added'));
+
+    // Test adding a new e-mail address.
+    $edit = array('email' => $this->randomName() . '@example.com');
+
+    $this->drupalPost('user/' . $this->loggedInUser->uid . '/edit/email-addresses', $edit, t('Save'));
+    $this->assertRaw(t('The e-mail address %email has been added to your account. Check your e-mail in order to confirm this new address.',
+        array('%email' => $edit['email'])), t('Email successfully added.'));
+
+    // Lets delete these emails via sql query
+    // @TODO Can it be done via UI?
+    $deleteQuery = db_delete('multiple_email')
+      ->condition('uid', $this->loggedInUser->uid)
+      ->execute();
+
+    $this->drupalGet('user/' . $this->loggedInUser->uid . '/edit/email-addresses');
+    $this->assertText('Unable to find any e-mail addresses.', 'Error message was shown');
+    $this->assertNoRaw($this->loggedInUser->mail, 'Primary email was deleted from this view');
+    $this->assertNoRaw($edit['email'], 'Secondary email was deleted from this view');
+  }
 }
 
 class MultipleEmailBasicUserTestCase extends DrupalWebTestCase {

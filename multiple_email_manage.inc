@@ -165,7 +165,7 @@ function theme_multiple_email_manage($variables) {
 
   if (empty($rows)) {
     $rows = array(array(
-        'class' => 'error',
+        'class' => array('error'),
         'data' => array(
           array(
             'colspan' => 3,
