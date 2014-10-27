@@ -92,14 +92,12 @@ function multiple_email_confirm_form_validate($form, &$form_state) {
   if ($code != '') {
     $attempts = $email->attempts + 1;
     $allowed = (int) variable_get('multiple_email_confirm_attempts', 3);
-    // TODO Please review the conversion of this statement to the D7 database API syntax.
-    /* db_query("UPDATE {multiple_email} SET attempts = %d WHERE eid = %d", $attempts, $email->eid) */
     db_update('multiple_email')
-  ->fields(array(
-    'attempts' => $attempts,
-  ))
-  ->condition('eid', $email->eid)
-  ->execute();
+      ->fields(array(
+        'attempts' => $attempts,
+      ))
+      ->condition('eid', $email->eid)
+      ->execute();
 
     if (!$allowed || $attempts <= $allowed) {
       if ($code != $email->confirm_code) {
@@ -108,16 +106,14 @@ function multiple_email_confirm_form_validate($form, &$form_state) {
     }
     else {
       $email->confirm_code = multiple_email_code();
-      // TODO Please review the conversion of this statement to the D7 database API syntax.
-      /* db_query("UPDATE {multiple_email} SET confirm_code = '%s', time_code_generated = %d, attempts = 0 WHERE eid = %d", $email->confirm_code, REQUEST_TIME, $email->eid) */
       db_update('multiple_email')
-  ->fields(array(
-    'confirm_code' => $email->confirm_code,
-    'time_code_generated' => REQUEST_TIME,
-    'attempts' =>  0,
-  ))
-  ->condition('eid', $email->eid)
-  ->execute();
+        ->fields(array(
+          'confirm_code' => $email->confirm_code,
+          'time_code_generated' => REQUEST_TIME,
+          'attempts' =>  0,
+        ))
+        ->condition('eid', $email->eid)
+        ->execute();
       multiple_email_send_confirmation($account, $email);
 
       // Redirect & Message
@@ -172,15 +168,13 @@ function multiple_email_confirm_page_resend_submit($form, &$form_state) {
   $account = $form['#account'];
   // Send a confirmation e-mail if one has not been sent within the specified days.
   $email->confirm_code = multiple_email_code();
-  // TODO Please review the conversion of this statement to the D7 database API syntax.
-  /* db_query("UPDATE {multiple_email} SET confirm_code = '%s', time_code_generated = %d, attempts = 0 WHERE eid = %d", $email->confirm_code, REQUEST_TIME, $email->eid) */
   db_update('multiple_email')
-  ->fields(array(
-    'confirm_code' => $email->confirm_code,
-    'time_code_generated' => REQUEST_TIME,
-    'attempts' =>  0,
-  ))
-  ->condition('eid', $email->eid)
-  ->execute();
+    ->fields(array(
+      'confirm_code' => $email->confirm_code,
+      'time_code_generated' => REQUEST_TIME,
+      'attempts' =>  0,
+    ))
+    ->condition('eid', $email->eid)
+    ->execute();
   multiple_email_send_confirmation($account, $email);
 }

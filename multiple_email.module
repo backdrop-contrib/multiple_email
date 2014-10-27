@@ -111,9 +111,9 @@ function _multiple_email_access($op, $account, $email = NULL) {
   global $user;
   $administer_user = user_access('administer users');
   // Basic permission check to access any page.
-  // If the account does not have access to use multiple emails, return false
+  // If the account does not have access to use multiple emails, return false.
   // If the account does not belong to the current user and the user does not
-  // have administer users permission, return false
+  // have administer users permission, return false.
   if (!user_access('use multiple emails', $account) || ($account->uid != $user->uid && !$administer_user)) {
     return FALSE;
   }
@@ -140,7 +140,8 @@ function _multiple_email_access($op, $account, $email = NULL) {
       break;
 
     case 'edit':
-      // Make sure this isn't the primary e-mail and the edit emails flag is enabled.
+      // Make sure this isn't the primary e-mail and the edit emails flag is
+      // enabled.
       if (($email->primary_address == 0 && variable_get('multiple_email_edit_emails', 0)) || $administer_user) {
         return TRUE;
       }
@@ -180,16 +181,6 @@ function multiple_email_menu_alter(&$items) {
  */
 function multiple_email_user_categories() {
   return array(array('name' => 'email-addresses', 'title' => 'E-mail addresses', 'weight' => 100));
-}
-
-/**
- * Implements hook_user_XXX().
- */
-function multiple_email_user_XXX($edit, $account) {
-  if ($category == 'email-addresses') {
-    $form = array();
-    return $form;
-  }
 }
 
 /**
@@ -265,18 +256,6 @@ function multiple_email_user_update(&$edit, $account, $category) {
 }
 
 /**
- * Implements hook_user().
- *
- * @param string $op
- * @param array $edit
- * @param object $account
- * @param string $category
- *
- * @return mixed
- */
-function multiple_email_user_OLD($op, &$edit, &$account, $category = NULL) { }
-
-/**
  * Implements hook_theme().
  */
 function multiple_email_theme() {
@@ -295,7 +274,8 @@ function multiple_email_theme() {
  * This will be done in address management screen instead.
  */
 function multiple_email_form_user_profile_form_alter(&$form, $form_state) {
-  // Disable e-mail address field on main user/edit form when user has 'use multiple emails' access.
+  // Disable e-mail address field on main user/edit form when user has
+  // 'use multiple emails' access.
   if (isset($form['account']['mail']) &&
       user_access('use multiple emails', $form['#user']) &&
       variable_get('multiple_email_hide_field', TRUE)) {
@@ -418,37 +398,15 @@ function multiple_email_admin_settings_validate($form, &$form_state) {
  */
 function multiple_email_load_addresses($uid, $tablesortHeaders = NULL) {
   $addresses = array();
-  
+
   $query = db_select('multiple_email', 'a')
     ->fields('a')
     ->condition('a.uid', $uid);
   $query->addJoin('INNER', 'users', 'u', 'u.uid = a.uid');
-  $query->addExpression('IF(LOWER(a.email) = LOWER(u.mail), 1, 0)', 'primary_address');        
-  
+  $query->addExpression('IF(LOWER(a.email) = LOWER(u.mail), 1, 0)', 'primary_address');
+
   $result = $query->execute();
 
-  /*/* TODO Please convert this statement to the D7 database API syntax.
-  $results = db_query("
-    SELECT
-      a.eid,
-      a.uid,
-      a.email,
-      a.time_registered,
-      a.confirmed,
-      a.confirm_code,
-      a.time_code_generated,
-      a.attempts,
-      IF(LOWER(a.email) = LOWER(u.mail), 1, 0) AS primary_address
-    FROM
-      {multiple_email} a
-    INNER JOIN {users} u ON (u.uid = a.uid)
-    WHERE
-      a.uid = %d"
-      . ($tablesortHeaders ? ' ' . tablesort_sql($tablesortHeaders) : ''),
-    $uid
-  );
-
-*/
   while ($row = $result->fetchObject()) {
     $addresses[0][] = $row->email;
     $addresses[$row->eid] = $row;
@@ -465,44 +423,16 @@ function multiple_email_load_addresses($uid, $tablesortHeaders = NULL) {
  * @return object
  */
 function multiple_email_load($eid) {
-    if (is_numeric($eid)) {
-      $query = db_select('multiple_email', 'me')
-        ->fields('me')
-        ->condition('me.eid', $eid);
-      $query->addJoin('INNER', 'users', 'u', 'u.uid = me.uid');
-      $query->addExpression('IF(LOWER(me.email) = LOWER(u.mail), 1, 0)', 'primary_address');        
+  if (is_numeric($eid)) {
+    $query = db_select('multiple_email', 'me')
+      ->fields('me')
+      ->condition('me.eid', $eid);
+    $query->addJoin('INNER', 'users', 'u', 'u.uid = me.uid');
+    $query->addExpression('IF(LOWER(me.email) = LOWER(u.mail), 1, 0)', 'primary_address');
 
-      $result = $query->execute();
-      
-      return $result->fetchObject();
-      
-      /*
-      // Converted to PDO above.
-      $emails[$eid] = db_fetch_object(db_query("
-      SELECT
-        a.eid,
-        a.uid,
-        a.email,
-        a.time_registered,
-        a.time_registered,
-        a.confirmed,
-        a.confirm_code,
-        a.time_code_generated,
-        a.attempts,
-        IF(LOWER(a.email) = LOWER(u.mail), 1, 0) AS primary_address
-      FROM
-        {multiple_email} a
-      INNER JOIN {users} u ON (u.uid = a.uid)
-      WHERE
-        a.eid = %d", $eid));
-     
-    // I have no idea what this bit of code is for. Doesn't seem to do anything.
-    $node_additions = !empty($eid) && !empty($emails[$eid]) ? $emails[$eid] : FALSE;
-    foreach ($node_additions as $property => &$value) {
-      $eid->$property = $value;
-    }
-     * 
-     */
+    $result = $query->execute();
+
+    return $result->fetchObject();
   }
 }
 
@@ -551,7 +481,6 @@ function multiple_email_find_address($email) {
  * @return mixed
  */
 function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = NULL) {
-  
   if ($eid) {
     $query = db_update('multiple_email')
       ->fields(array(
@@ -563,33 +492,12 @@ function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = 
       ))
       ->condition('eid', $eid);
     $success = $query->execute();
-    
-    /* Removed in favor of the db_update query above.
-    $success = db_query("
-      UPDATE {multiple_email}
-      SET
-        email = '%s',
-        time_registered = %d,
-        confirmed = %d,
-        confirm_code = '%s',
-        time_code_generated = %d
-      WHERE
-        eid = %d", $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME, $eid);
-     * 
-     */
   }
   else {
     $query = db_insert('multiple_email')
       ->fields(array('uid', 'email', 'time_registered', 'confirmed', 'confirm_code', 'time_code_generated'),
-              array($uid, $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME));
+        array($uid, $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME));
     $success = ($eid = $query->execute());
-    /*
-    $success = db_query("
-      INSERT INTO {multiple_email}
-        (`uid`,`email`,`time_registered`,`confirmed`,`confirm_code`,`time_code_generated`)
-      VALUES
-        (%d, '%s', %d, %d, '%s', %d)", $uid, $email, REQUEST_TIME, (int) $confirmed, $code = multiple_email_code(), REQUEST_TIME);
-    */
   }
 
   if ($success !== FALSE) {
@@ -621,13 +529,6 @@ function multiple_email_confirm_email($email, $confirm = TRUE) {
     ->fields(array('confirmed' => $confirm))
     ->condition('eid', $email->eid)
     ->execute();
-  /* Removed in favor of the above PDO query.
-  db_query("
-    UPDATE {multiple_email} SET
-      confirmed = %d
-    WHERE
-      eid = %d", $confirm, $email->eid);
-   */
   $email->confirmed = $confirm;
   // Fires off hook_multiple_email_confirm().
   module_invoke_all('multiple_email_confirm', $email);
@@ -664,11 +565,9 @@ function multiple_email_code($length = 10, $chars = 'abcdefghijklmnopqrstuvwxyzA
  */
 function multiple_email_delete_email($eid) {
   multiple_email_load(NULL, TRUE);
-  // TODO Please review the conversion of this statement to the D7 database API syntax.
-  /* db_query("DELETE FROM {multiple_email} WHERE eid = %d", $eid) */
   $retn = db_delete('multiple_email')
-  ->condition('eid', $eid)
-  ->execute();
+    ->condition('eid', $eid)
+    ->execute();
   if ($retn !== FALSE) {
     module_invoke_all('multiple_email_delete', $eid);
   }
@@ -707,8 +606,7 @@ function multiple_email_send_confirmation($account, $email) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Implements hook_mail().
  */
 function multiple_email_mail($key, &$message, $params) {
 
@@ -740,14 +638,16 @@ function multiple_email_expire_address($eid) {
   multiple_email_delete_email($eid);
   $from = variable_get('site_mail', ini_get('sendmail_from'));
 
+  // TODO Use multiple_email_mail() function with a key instead of a fake module.
   drupal_mail('multiple_email_expire', 'expire_address_mail', $account->mail, $language, $params, $from);
   watchdog('Multiple E-mail', '@email (@eid) for @name (@uid) has expired and been removed',
     array('@email' => $email->email, '@eid' => $email->eid, '@name' => $account->name, '@uid' => $account->uid));
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Implements hook_mail().
+ *
+ * TODO Use multiple_email_mail() function with a key instead of a fake module.
  */
 function multiple_email_expire_address_mail($key, &$message, $params) {
   $message['subject'] = $params['subject'];
@@ -870,11 +770,7 @@ END_MESSAGE;
 }
 
 /*
- * Implements hook_views_api
- */
-/**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Implements hook_views_api().
  */
 function multiple_email_views_api() {
   return array(

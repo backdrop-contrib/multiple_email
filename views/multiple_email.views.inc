@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * multiple_email views integration file
+ */
+
+/**
  * Implements hook_views_handlers().
  */
 function multiple_email_views_handlers() {
@@ -33,7 +38,6 @@ function multiple_email_views_data_alter(&$views_data) {
               'filter' => $data['filter'],
             );
             $views_data[$table_key][$field['field_name'] . '_match']['filter']['handler'] = 'multiple_email_handler_filter_current';
-            //$views_data[$table_key][$field['field_name'] .'_match']['filter']['handler'] = 'content_handler_filter_many_to_one';
           }
         }
       }
@@ -42,8 +46,8 @@ function multiple_email_views_data_alter(&$views_data) {
 }
 
 /**
- * @file
- * multiple_email views integration file
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
  */
 function multiple_email_views_data() {
   $data = array();
@@ -103,117 +107,6 @@ function multiple_email_views_data() {
       ),
     );
   }
-
-
-
-
-
-
-  /**
-   $data['multiple_email'] = array(
-   'eid' => array(
-   'title' => t('Multiple E-mail ID'),
-   'help' => t('multiple_email.eid'),
-   'field' => array(
-   'handler' => 'views_handler_field_numeric',
-   'click sortable' => TRUE,
-   ),
-   'filter' => array(
-   'handler' => 'views_handler_filter_numeric',
-   'allow empty' => TRUE,
-   ),
-   'argument' => array(
-   'handler' => 'views_handler_argument_numeric',
-   ),
-   'sort' => array(
-   'handler' => 'views_handler_sort',
-   ),
-   ),
-   'uid' => array(
-   'title' => t('User ID'),
-   'help' => t('multiple_email.uid'),
-   'field' => array(
-   'handler' => 'views_handler_field_user',
-   'click sortable' => TRUE,
-   ),
-   'filter' => array(
-   'handler' => 'views_handler_filter_user_name',
-   'allow empty' => TRUE,
-   ),
-   'argument' => array(
-   'handler' => 'views_handler_argument_user_uid',
-   ),
-   'sort' => array(
-   'handler' => 'views_handler_sort',
-   ),
-   ),
-   'email' => array(
-   'title' => t('E-mail Address'),
-   'help' => t('multiple_email.email'),
-   'field' => array(
-   'handler' => 'views_handler_field',
-   'click sortable' => TRUE,
-   ),
-   'filter' => array(
-   'handler' => 'views_handler_filter_string',
-   'allow empty' => TRUE,
-   ),
-   'argument' => array(
-   'handler' => 'views_handler_argument_string',
-   ),
-   'sort' => array(
-   'handler' => 'views_handler_sort',
-   ),
-   ),
-   'time_registered' => array(
-   'title' => t('Time E-mail Registered'),
-   'help' => t('multiple_email.time_registered'),
-   'field' => array(
-   'handler' => 'views_handler_field_date',
-   'click sortable' => TRUE,
-   ),
-   'filter' => array(
-   'handler' => 'views_handler_filter_date',
-   'allow empty' => TRUE,
-   ),
-   'argument' => array(
-   'handler' => 'views_handler_argument_date',
-   ),
-   'sort' => array(
-   'handler' => 'views_handler_sort_date',
-   ),
-   ),
-   'confirmed' => array(
-   'title' => t('Time E-mail Confirmed'),
-   'help' => t('multiple_email.confirmed'),
-   'field' => array(
-   'handler' => 'views_handler_field_numeric',
-   'click sortable' => TRUE,
-   ),
-   'filter' => array(
-   'handler' => 'views_handler_filter_numeric',
-   'allow empty' => TRUE,
-   ),
-   'argument' => array(
-   'handler' => 'views_handler_argument_numeric',
-   ),
-   'sort' => array(
-   'handler' => 'views_handler_sort',
-   ),
-   ),
-   'table' => array(
-   'group' => t('Multiple E-mail'),
-   'join' => array(
-   'users' => array(
-   'table' => 'multiple_email',
-   'left_field' => 'uid',
-   'field' => 'uid',
-   ),
-   ),
-
-   ),
-   );
-   */
 
   return $data;
 }
