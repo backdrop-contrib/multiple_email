@@ -331,6 +331,7 @@ class MultipleEmailLateInstallTestCase extends DrupalWebTestCase {
     // Verify access to multiple e-mail addresses.
     $this->drupalGet('user/' . $this->loggedInUser->uid . '/edit/email-addresses');
     $this->assertText(t('Add new e-mail'));
+    drupal_load('module', 'multiple_email'); // Load freshly-enabled module code so API can be used.
     $address = multiple_email_find_address($this->loggedInUser->mail);
     $this->assertText($this->loggedInUser->mail);
     // emailuser should not have access to edit addresses.
