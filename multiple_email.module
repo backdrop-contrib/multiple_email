@@ -612,6 +612,7 @@ function multiple_email_mail($key, &$message, $params) {
 
   switch ($key) {
     case 'confirmation':
+    case 'expiration':
       $message['subject'] = $params['subject'];
       $message['body'][] = $params['body'];
       $message['headers'] = array_merge($message['headers'], $params['headers']);
@@ -629,30 +630,19 @@ function multiple_email_expire_address($eid) {
   global $language;
 
   $email = multiple_email_load($eid);
+  multiple_email_delete_email($eid);
+
+  $from = variable_get('site_mail', ini_get('sendmail_from'));
   $account = user_load($email->uid);
   $params = array(
+    'headers' => array(),
     'subject' => multiple_email_message_part('subject', 'expire', $account, $email),
     'body' => multiple_email_message_part('body', 'expire', $account, $email),
   );
 
-  multiple_email_delete_email($eid);
-  $from = variable_get('site_mail', ini_get('sendmail_from'));
-
-  // TODO Use multiple_email_mail() function with a key instead of a fake module.
-  drupal_mail('multiple_email_expire', 'expire_address_mail', $account->mail, $language, $params, $from);
+  drupal_mail('multiple_email', 'expiration', $account->mail, $language, $params, $from);
   watchdog('Multiple E-mail', '@email (@eid) for @name (@uid) has expired and been removed',
     array('@email' => $email->email, '@eid' => $email->eid, '@name' => $account->name, '@uid' => $account->uid));
-}
-
-/**
- * Implements hook_mail().
- *
- * TODO Use multiple_email_mail() function with a key instead of a fake module.
- */
-function multiple_email_expire_address_mail($key, &$message, $params) {
-  $message['subject'] = $params['subject'];
-  $message['body'][] = $params['body'];
-  $message['headers'] = array_merge($message['headers'], $params['headers']);
 }
 
 /**
