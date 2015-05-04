@@ -27,6 +27,11 @@ function multiple_email_permission() {
       'title' => t('use multiple emails'),
       'description' => t('Allow people to add and configure multiple email addresses.'),
     ),
+    'administer multiple emails' => array(
+      'title' => t('Administer multiple emails'),
+      'description' => t('Allow people to configure multiple email addresses module and to change any multiple email address.'),
+      'restrict access' => TRUE,
+    ),
   );
 }
 
@@ -41,7 +46,7 @@ function multiple_email_menu() {
     'description' => 'Control behavior of the Multiple E-mail Addresses module',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('multiple_email_admin_settings'),
-    'access arguments' => array('administer users'),
+    'access arguments' => array('administer multiple emails'),
   );
 
   $items['user/%user/edit/email-addresses/view'] = array(
@@ -109,11 +114,11 @@ function multiple_email_menu() {
 
 function _multiple_email_access($op, $account, $email = NULL) {
   global $user;
-  $administer_user = user_access('administer users');
+  $administer_user = user_access('administer multiple emails');
   // Basic permission check to access any page.
-  // If the account does not have access to use multiple emails, return false.
+  // If the account does not have access to 'use multiple emails', return false.
   // If the account does not belong to the current user and the user does not
-  // have administer users permission, return false.
+  // have 'administer multiple emails' permission, return false.
   if (!user_access('use multiple emails', $account) || ($account->uid != $user->uid && !$administer_user)) {
     return FALSE;
   }
@@ -245,7 +250,7 @@ function multiple_email_user_update(&$edit, $account, $category) {
     if (empty($object)) {
       // If an administer is making a change or user doesn't have
       // multiple emails permission, mark as confirmed.
-      $confirmed = user_access('administer users') || !user_access('use multiple emails', $account);
+      $confirmed = user_access('administer multiple emails') || !user_access('use multiple emails', $account);
       // confirm if action done by administer
       $eid = multiple_email_register_email($account->uid, $edit['mail'], $confirmed);
       if (empty($confirmed) && !empty($eid)) {

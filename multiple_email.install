@@ -126,3 +126,13 @@ function multiple_email_update_7100() {
   $query->condition('uid', $subquery, 'NOT IN');
   $query->execute();
 }
+
+/**
+ * Give 'administer multiple emails' to all roles having 'administer users'.
+ */
+function multiple_email_update_7101() {
+  $roles = user_roles(FALSE, 'administer users');
+  foreach ($roles as $rid => $role) {
+    user_role_grant_permissions($rid, array('administer multiple emails'));
+  }
+}

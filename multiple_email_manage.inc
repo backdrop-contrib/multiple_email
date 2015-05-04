@@ -27,7 +27,7 @@ function multiple_email_manage($form, &$form_state, $account) {
         '#markup' => $email->email,
       ),
     );
-    if (user_access('administer users')) {
+    if (user_access('administer multiple emails')) {
       $form['addresses'][$email->eid]['confirm'] = array(
         '#type' => 'checkbox',
         '#title' => t('Confirm this e-mail (<a href="!resend">resend</a>)',
@@ -48,7 +48,7 @@ function multiple_email_manage($form, &$form_state, $account) {
       '#prefix' => '<div class="add-new-placeholder"></div>',
       '#type' => 'checkbox',
       '#title' => t('Confirm this e-mail'),
-      '#access' => user_access('administer users'),
+      '#access' => user_access('administer multiple emails'),
     ),
   );
 
@@ -100,7 +100,7 @@ function multiple_email_manage_submit($form, &$form_state) {
     $eid = multiple_email_register_email($account->uid, $form_state['values']['email']);
 
     if ($eid) {
-      if (user_access('administer users') && $form_state['values']['confirm'] == TRUE) {
+      if (user_access('administer multiple emails') && $form_state['values']['confirm'] == TRUE) {
         $email = multiple_email_get_address($eid);
         multiple_email_confirm_email($email);
         drupal_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
@@ -143,7 +143,7 @@ function theme_multiple_email_manage($variables) {
     $ops = array();
 
     // See if they can edit this e-mail address.
-    if (user_access('administer users') || (variable_get('multiple_email_edit_emails', 0) && !$address->primary_address)) {
+    if (user_access('administer multiple emails') || (variable_get('multiple_email_edit_emails', 0) && !$address->primary_address)) {
       $ops[] = l(t('Edit'), 'user/' . $account->uid . '/edit/email-addresses/edit/' . $address->eid);
     }
 

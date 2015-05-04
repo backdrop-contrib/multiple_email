@@ -45,7 +45,7 @@ function multiple_email_edit_form($form, &$form_state, $account, $email) {
     '#value' => $account,
   );
 
-  if (user_access('administer users')) {
+  if (user_access('administer multiple emails')) {
     $form['confirm'] = array(
       '#type' => 'checkbox',
       '#title' => t('Activate this email.'),
@@ -95,7 +95,7 @@ function multiple_email_edit_form_submit($form, &$form_state) {
   if ($form['email']['#default_value'] != $form_state['values']['email']) {
     // E-mail address has been changed. Register E-mail.
     multiple_email_register_email($account->uid, $form_state['values']['email'], FALSE, $form_state['values']['eid']);
-    $confirm = user_access('administer users') ? $form_state['values']['confirm'] : FALSE;
+    $confirm = user_access('administer multiple emails') ? $form_state['values']['confirm'] : FALSE;
     drupal_set_message(t('The e-mail address has been changed to %email.', array('%email' => $form_state['values']['email'])));
   }
   else {

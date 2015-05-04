@@ -236,7 +236,7 @@ class MultipleEmailAdminUserTestCase extends DrupalWebTestCase {
     parent::setUp('multiple_email');
 
     // Create a user allowed to administer users.
-    $this->adminuser = $this->drupalCreateUser(array('administer users'));
+    $this->adminuser = $this->drupalCreateUser(array('administer users', 'administer multiple emails'));
     $this->basicuser = $this->drupalCreateUser();
     $this->drupalLogin($this->adminuser);
   }
@@ -308,7 +308,16 @@ class MultipleEmailLateInstallTestCase extends DrupalWebTestCase {
     ));
     $this->assertRaw('<input type="checkbox" id="edit-modules-other-multiple-email-enable" name="modules[Other][multiple_email][enable]" value="1" checked="checked" class="form-checkbox" />', t('Multiple E-mail Addresses module checkbox checked'));
 
-    // Enable Multiple E-mail Permissions
+    // Enable 'administer multiple emails' Permissions for adminuser.
+    $this->drupalGet('admin/people/permissions');
+    $this->assertRaw('4[administer multiple emails]');
+    $this->assertRaw(t('Save permissions'));
+    $edit = array(
+      '4[administer multiple emails]' => TRUE,
+    );
+    $this->drupalPost('admin/people/permissions', $edit, t('Save permissions'));
+
+    // Enable 'use multiple emails' Permissions for emailuser.
     $this->drupalGet('admin/people/permissions');
     $this->assertRaw('5[use multiple emails]');
     $this->assertRaw(t('Save permissions'));
