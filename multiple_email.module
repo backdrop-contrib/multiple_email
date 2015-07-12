@@ -413,7 +413,7 @@ function multiple_email_load_addresses($uid, $tablesortHeaders = NULL) {
   $result = $query->execute();
 
   while ($row = $result->fetchObject()) {
-    $addresses[0][] = $row->email;
+    $addresses[0][$row->eid] = $row->email;
     $addresses[$row->eid] = $row;
   }
 
