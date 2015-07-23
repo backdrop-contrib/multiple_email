@@ -459,6 +459,7 @@ function multiple_email_get_address($eid) {
  * @return mixed
  */
 function multiple_email_find_address($email) {
+  $email = trim($email);
   $query = db_select('multiple_email', 'me');
   $query->addField('me', 'eid');
   $query->condition('me.email', db_like($email), 'LIKE');
@@ -486,6 +487,7 @@ function multiple_email_find_address($email) {
  * @return mixed
  */
 function multiple_email_register_email($uid, $email, $confirmed = FALSE, $eid = NULL) {
+  $email = trim($email);
   if ($eid) {
     $query = db_update('multiple_email')
       ->fields(array(
