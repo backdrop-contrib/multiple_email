@@ -33,6 +33,7 @@ function multiple_email_uninstall() {
   $variables = array(
     'multiple_email_hide_field',
     'multiple_email_edit_emails',
+    'multiple_email_password_reset',
     'multiple_email_confirm_deadline',
     'multiple_email_confirm_attempts',
     'multiple_email_confirmation_subject',

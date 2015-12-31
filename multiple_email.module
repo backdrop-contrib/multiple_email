@@ -240,6 +240,31 @@ function _multiple_email_user_register_form_validate($element, &$form_state, $fo
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function multiple_email_form_user_pass_alter(&$form, &$form_state, $form_id) {
+  if (variable_get('multiple_email_password_reset', 'disabled') !== 'disabled') {
+    array_unshift($form['#validate'], '_multiple_email_user_pass_form_validate');
+  }
+}
+
+/**
+ * Custom validator for the user password reset form.
+ */
+function _multiple_email_user_pass_form_validate($form, &$form_state) {
+  if (valid_email_address($form['name']['#value']) && $email = multiple_email_find_address($form['name']['#value'])) {
+    if (variable_get('multiple_email_password_reset', 'disabled') === 'confirmed' && $email->confirmed != 1) {
+      form_error($form['name'], t('The e-mail address %email is registered but has not been confirmed.', array('%email' => $email->email)));
+      return;
+    }
+
+    $account = user_load($email->uid);
+    $account->mail = $email->email;
+    $form_state['values']['name'] = $account->name;
+  }
+}
+
+/**
  * Implements hook_user_update().
  */
 function multiple_email_user_update(&$edit, $account, $category) {
@@ -328,6 +353,17 @@ function multiple_email_admin_settings($form, &$form_state) {
     '#description' => t('Allows editing of e-mail addresses. It is equivalent to deleting and adding a new e-mail address, as edited emails must be re-confirmed. If enabled, e-mail addresses (excluding primary) may be edited via the multiple e-mail tab.'),
     '#options' => array('No', 'Yes'),
     '#default_value' => variable_get('multiple_email_edit_emails', 0),
+  );
+  $form['multiple_email_password_reset'] = array(
+    '#type' => 'radios',
+    '#title' => t('Password reset to additional e-mails'),
+    '#description' => t('Allows password reset emails to be sent to additional e-mail addresses beyond users’ primary. Will only send to confirmed e-mail addresses.'),
+    '#options' => array(
+      'disabled' => t('Disabled'),
+      'confirmed' => t('Only for confirmed e-mails'),
+      'all' => t('All email addresses'),
+    ),
+    '#default_value' => variable_get('multiple_email_password_reset', 'disabled'),
   );
   $form['multiple_email_confirm_attempts'] = array(
     '#type' => 'textfield',
