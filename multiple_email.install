@@ -22,7 +22,6 @@ function multiple_email_install() {
     FROM {users}
     WHERE uid != 0
     AND mail != ''
-    GROUP BY mail
   ");
 }
 
