@@ -808,3 +808,139 @@ function multiple_email_views_api() {
     'path' => drupal_get_path('module', 'multiple_email') . '/views',
   );
 }
+
+/**
+ * Implements hook_entity_info().
+ */
+function multiple_email_entity_info() {
+  $return = array(
+    'multiple_email' => array(
+      'label' => t('Email address of user'),
+      'base table' => 'multiple_email',
+      'module' => 'multiple_email',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'eid',
+        'label' => 'email',
+      ),
+      'creation callback' => 'multiple_email_entity_create',
+      'configuration' => FALSE,
+    ),
+  );
+  return $return;
+}
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function multiple_email_entity_property_info() {
+  $info = array();
+  $properties = &$info['multiple_email']['properties'];
+
+  $properties['eid'] = array(
+    'label' => t("Email ID"),
+    'type' => 'integer',
+    'description' => t("The unique Email ID."),
+    'schema field' => 'eid',
+  );
+  $properties['email'] = array(
+    'label' => t("Email address"),
+    'type' => 'text',
+    'description' => t("The email address."),
+    'schema field' => 'email',
+    'required' => TRUE,
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer multiple emails',
+  );
+
+  $properties['time_registered'] = array(
+    'label' => t("Registered"),
+    'type' => 'date',
+    'description' => t("The time the email address was registered."),
+    'schema field' => 'time_registered',
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer multiple emails',
+  );
+  $properties['confirmed'] = array(
+    'label' => t("Confirmed"),
+    'type' => 'boolean',
+    'description' => t("If the email address is confirmed."),
+    'schema field' => 'confirmed',
+    'required' => TRUE,
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer multiple emails',
+  );
+  $properties['confirm_code'] = array(
+    'label' => t("Confirm code"),
+    'type' => 'text',
+    'description' => t("The confirm code."),
+    'schema field' => 'confirm_code',
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer multiple emails',
+  );
+  $properties['time_code_generated'] = array(
+    'label' => t("Confirm code timestamp"),
+    'type' => 'date',
+    'description' => t("The time the confirm code was generated."),
+    'schema field' => 'time_code_generated',
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer multiple emails',
+  );
+  $properties['attempts'] = array(
+    'label' => t("Confirmation attempts"),
+    'type' => 'integer',
+    'description' => t("How often confirmation code input was tried."),
+    'schema field' => 'attempts',
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer multiple emails',
+  );
+
+  $properties['user'] = array(
+    'label' => t("User"),
+    'type' => 'user',
+    'description' => t("The user with that address."),
+    'getter callback' => 'entity_metadata_node_get_properties',
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer multiple emails',
+    'required' => TRUE,
+    'schema field' => 'uid',
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function multiple_email_entity_property_info_alter(&$info) {
+  $info['user']['properties']['multiple_email'] = array(
+    'label' => t("Email addresses"),
+    'type' => 'list<multiple_email>',
+    'description' => t("The email address governed by multiple email module."),
+    'getter callback' => 'multiple_email_user_emails_property_get',
+  );
+}
+
+/**
+ * Getter callback for multiple_email property.
+ */
+function multiple_email_user_emails_property_get($user, array $options, $name, $entity_type) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'multiple_email')
+    ->propertyCondition('uid', $user->uid);
+  $result = $query->execute();
+  $result += array('multiple_email' => array());
+  $entity_ids = array_keys($result['multiple_email']);
+  return $entity_ids;
+}
+
+/**
+ * Creation callback for multiple_email entities.
+ */
+function multiple_email_entity_create($values) {
+  $email = (object) array();
+  foreach ($values as $key => $value) {
+    $email->$key = $value;
+  }
+  return $email;
+}
