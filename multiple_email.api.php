@@ -2,7 +2,7 @@
 
 /**
  * @file
- *  API functions for Multiple Email module.
+ * API functions for Multiple Email module.
  */
 
 /**
@@ -14,7 +14,7 @@
  * Signal that an email address has been registered by Multiple Email.
  *
  * @param $email
- *  The fully-loaded email object created by Multiple Email.
+ *   The fully-loaded email object created by Multiple Email.
  */
 function hook_multiple_email_register($email) {
   drupal_set_message(t('Do not forget to confirm %email!', array('%email' => $email->mail)));
@@ -24,7 +24,7 @@ function hook_multiple_email_register($email) {
  * Signal that an email address has been confirmed by Multiple Email.
  *
  * @param $email
- *  The fully-loaded email object created by Multiple Email.
+ *   The fully-loaded email object created by Multiple Email.
  */
 function hook_multiple_email_confirm($email) {
   drupal_set_message(t('Now that %email has been confirmed, you may make it your primary address.', array('%email' => $email->mail)));
@@ -38,7 +38,7 @@ function hook_multiple_email_confirm($email) {
  * in multiple_email's implementation of hook_user(), without triggering this hook.
  *
  * @param $eid
- *  Email Address ID.
+ *   Email Address ID.
  */
 function hook_multiple_email_delete($eid) {
   db_query("DELETE FROM {mytable} WHERE eid = %d", $eid);

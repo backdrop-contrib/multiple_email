@@ -165,14 +165,14 @@ function theme_multiple_email_manage($variables) {
 
   if (empty($rows)) {
     $rows = array(array(
-        'class' => array('error'),
-        'data' => array(
-          array(
-            'colspan' => 3,
-            'data' => t('Unable to find any e-mail addresses.'),
-          ),
+      'class' => array('error'),
+      'data' => array(
+        array(
+          'colspan' => 3,
+          'data' => t('Unable to find any e-mail addresses.'),
         ),
-      ));
+      ),
+    ));
   }
 
   $rows[] = array(

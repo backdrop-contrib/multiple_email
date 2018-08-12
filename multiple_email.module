@@ -126,7 +126,7 @@ function _multiple_email_access($op, $account, $email = NULL) {
   // If we have been given an e-mail address, make sure it belongs to the loaded
   // account. Since Drupal will fail earlier if multiple_email_load fails, this
   // is sufficient.
-  if (!empty($email) && $email->uid != $account->uid ) {
+  if (!empty($email) && $email->uid != $account->uid) {
     return FALSE;
   }
 

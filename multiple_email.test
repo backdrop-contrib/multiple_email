@@ -304,7 +304,7 @@ class MultipleEmailLateInstallTestCase extends DrupalWebTestCase {
     $this->assertText('Multiple E-mail Addresses', t('Multiple E-mail Addresses module found'));
     $this->drupalPost('admin/modules', array('modules[Other][multiple_email][enable]' => 'TRUE'), t('Save configuration'));
     $this->assertRaw(t("Multiple E-mail settings are available under !link",
-    array('!link' => l(t('Administer') .' > ' . t('Configuration') . ' > ' . t('People') . ' > ' . t('Multiple E-mail'),  'admin/config/people/multiple-email'))
+    array('!link' => l(t('Administer') . ' > ' . t('Configuration') . ' > ' . t('People') . ' > ' . t('Multiple E-mail'), 'admin/config/people/multiple-email'))
     ));
     $this->assertRaw('<input type="checkbox" id="edit-modules-other-multiple-email-enable" name="modules[Other][multiple_email][enable]" value="1" checked="checked" class="form-checkbox" />', t('Multiple E-mail Addresses module checkbox checked'));
 
