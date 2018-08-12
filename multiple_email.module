@@ -185,7 +185,7 @@ function multiple_email_menu_alter(&$items) {
  * Implements hook_user_categories().
  */
 function multiple_email_user_categories() {
-  return array(array('name' => 'email-addresses', 'title' => 'E-mail addresses', 'weight' => 100));
+  return array(array('name' => 'email-addresses', 'title' => t('E-mail addresses'), 'weight' => 100));
 }
 
 /**
