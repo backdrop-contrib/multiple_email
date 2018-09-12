@@ -89,7 +89,7 @@ function multiple_email_manage_submit($form, &$form_state) {
           drupal_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
         }
         else {
-          // TODO Provide appropraite message for unconfirming.
+          drupal_set_message(t('The address %email is no longer confirmed.', array('%email' => $email->email)));
         }
       }
     }
