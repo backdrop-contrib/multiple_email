@@ -29,7 +29,6 @@ function multiple_email_confirm_page($account, $email, $code = NULL) {
   }
   elseif (empty($user->uid)) {
     drupal_set_message(t('You must be signed in to confirm an address.'));
-    // TODO drupal_get_destination() needs to be an array of keys and values instead of a string.
     drupal_goto('user/login', array('query' => drupal_get_destination()));
   }
   else {
