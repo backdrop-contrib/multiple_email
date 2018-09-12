@@ -21,7 +21,9 @@ function hook_multiple_email_register($email) {
 }
 
 /**
- * Signal that an email address has been confirmed by Multiple Email.
+ * Signal that an email address has been confirmed, or un-confirmed.
+ *
+ * Check $email->confirmed to determine if the email was confirmed or not.
  *
  * @param $email
  *   The fully-loaded email object created by Multiple Email.
