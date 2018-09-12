@@ -477,16 +477,6 @@ function multiple_email_load($eid) {
 }
 
 /**
- * Wrapper around multiple_email_load
- *
- * @deprecated
- */
-function multiple_email_get_address($eid) {
-  return multiple_email_load($eid);
-}
-
-
-/**
  * Finds the specified e-mail and returns an object containing its data.
  * Returns false if e-mail cannot be found.
  *

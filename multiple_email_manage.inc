@@ -105,12 +105,12 @@ function multiple_email_manage_submit($form, &$form_state) {
 
     if ($eid) {
       if (user_access('administer multiple emails') && $form_state['values']['confirm'] == TRUE) {
-        $email = multiple_email_get_address($eid);
+        $email = multiple_email_load($eid);
         multiple_email_confirm_email($email);
         drupal_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
       }
       else {
-        multiple_email_send_confirmation($account, multiple_email_get_address($eid));
+        multiple_email_send_confirmation($account, multiple_email_load($eid));
         drupal_set_message(t('The e-mail address %email has been added to your account. Check your e-mail in order to confirm this new address.',
           array('%email' => $form_state['values']['email'])));
       }
