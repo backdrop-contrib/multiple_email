@@ -31,10 +31,14 @@ function multiple_email_manage($form, &$form_state, $account) {
       $form['addresses'][$email->eid]['confirm'] = array(
         '#type' => 'checkbox',
         '#title' => t('Confirm this e-mail (<a href="!resend">resend</a>)',
-          array('!resend' => url('user/' . $account->uid . '/edit/email-addresses/confirm/' . $email->eid . '/resend'))),
+          array('!resend' => url('user/' . $account->uid . '/edit/email-addresses/confirm/' . $email->eid . '/resend', array('query' => drupal_get_destination())))),
         '#default_value' => $email->confirmed,
-        // Does this make sense? //        '#disabled' => $email->primary_address,
       );
+      if ($email->primary_address) {
+        // The primary address can not be un-confirmed.
+        $form['addresses'][$email->eid]['confirm']['#disabled'] = TRUE;
+        $form['addresses'][$email->eid]['confirm']['#default_value'] = TRUE;
+      }
     }
   }
 

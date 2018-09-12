@@ -151,8 +151,6 @@ function multiple_email_confirm_page_resend($form, &$form_state, $account, $emai
     '!delete' => url('user/' . $account->uid . '/edit/email-addresses/delete/' . $email->eid),
   ));
 
-  // TODO Should this redirect to the confirmation page or the address listing page?
-  $form_state['#redirect'] = 'user/' . $account->uid . '/edit/email-addresses/confirm/' . $email->eid;
   $form['#email'] = $email;
   $form['#account'] = $account;
 
@@ -177,4 +175,5 @@ function multiple_email_confirm_page_resend_submit($form, &$form_state) {
     ->condition('eid', $email->eid)
     ->execute();
   multiple_email_send_confirmation($account, $email);
+  drupal_set_message(t('Check your %email email for your confirmation.', ['%email' => $email->email]));
 }
