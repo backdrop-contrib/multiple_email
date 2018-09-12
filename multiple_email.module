@@ -19,7 +19,6 @@ function multiple_email_help($path, $arg) {
 
 /**
  * Implements hook_permission().
- *
  */
 function multiple_email_permission() {
   return array(
@@ -166,6 +165,7 @@ function _multiple_email_access($op, $account, $email = NULL) {
  * Implements hook_menu_alter().
  *
  * Actual menu entry is defined by hook_user category op.
+ *
  * @see multiple_email_user()
  */
 function multiple_email_menu_alter(&$items) {
@@ -478,7 +478,8 @@ function multiple_email_load($eid) {
 
 /**
  * Wrapper around multiple_email_load
- * Depracted function.
+ *
+ * @deprecated
  */
 function multiple_email_get_address($eid) {
   return multiple_email_load($eid);
