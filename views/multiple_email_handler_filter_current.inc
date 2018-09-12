@@ -6,7 +6,7 @@
  */
 
 /**
- * Filter handler for the current user's e-mail addresses to match to a cck field
+ * Filter handler for the current user's e-mail addresses to match a field.
  */
 class multiple_email_handler_filter_current extends views_handler_filter_boolean_operator {
   function construct() {

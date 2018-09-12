@@ -166,7 +166,8 @@ function multiple_email_confirm_page_resend($form, &$form_state, $account, $emai
 function multiple_email_confirm_page_resend_submit($form, &$form_state) {
   $email = $form['#email'];
   $account = $form['#account'];
-  // Send a confirmation e-mail if one has not been sent within the specified days.
+  // Send a confirmation e-mail if one has not been sent within the specified
+  // days.
   $email->confirm_code = multiple_email_code();
   db_update('multiple_email')
     ->fields(array(

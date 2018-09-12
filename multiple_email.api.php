@@ -36,8 +36,9 @@ function hook_multiple_email_confirm($email) {
  * Signal that an email address has been deleted by Multiple Email.
  *
  * When an email address is deleted by multiple email, this hook is invoked to
- * notify other modules this has happened. Addresses might also be deleted
- * in multiple_email's implementation of hook_user(), without triggering this hook.
+ * notify other modules this has happened. Addresses might also be deleted in
+ * multiple_email's implementation of hook_user(), without triggering this
+ * hook.
  *
  * @param $eid
  *   Email Address ID.
