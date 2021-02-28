@@ -51,7 +51,7 @@ function multiple_email_primary_form_submit($form, &$form_state) {
   }
 
   multiple_email_make_primary($email);
-  drupal_set_message(t('%email is now your primary e-mail address.', array('%email' => $email->email)));
+  backdrop_set_message(t('%email is now your primary e-mail address.', array('%email' => $email->email)));
 
   $form_state['redirect'] = 'user/' . $account->uid . '/edit/email-addresses';
 }

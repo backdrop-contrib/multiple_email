@@ -17,7 +17,7 @@
  */
 function multiple_email_edit_page($account, $email) {
   menu_set_active_item('user/' . $account->uid . '/edit/email-addresses');
-  return drupal_get_form('multiple_email_edit_form', $account, $email);
+  return backdrop_get_form('multiple_email_edit_form', $account, $email);
 }
 
 /**
@@ -96,11 +96,11 @@ function multiple_email_edit_form_submit($form, &$form_state) {
     // E-mail address has been changed. Register E-mail.
     multiple_email_register_email($account->uid, $form_state['values']['email'], FALSE, $form_state['values']['eid']);
     $confirm = user_access('administer multiple emails') ? $form_state['values']['confirm'] : FALSE;
-    drupal_set_message(t('The e-mail address has been changed to %email.', array('%email' => $form_state['values']['email'])));
+    backdrop_set_message(t('The e-mail address has been changed to %email.', array('%email' => $form_state['values']['email'])));
   }
   else {
     $confirm = $form_state['values']['confirm'];
-    drupal_set_message(t('No change was made to the e-mail address.'));
+    backdrop_set_message(t('No change was made to the e-mail address.'));
   }
 
   $email = multiple_email_load($form_state['values']['eid']);
@@ -108,11 +108,11 @@ function multiple_email_edit_form_submit($form, &$form_state) {
 
   switch ($confirm) {
     case TRUE:
-      drupal_set_message(t('The e-mail address %email is confirmed.', array('%email' => $form_state['values']['email'])));
+      backdrop_set_message(t('The e-mail address %email is confirmed.', array('%email' => $form_state['values']['email'])));
       break;
 
     case FALSE:
-      drupal_set_message(t('The e-mail address %email is awaiting confirmation.', array('%email' => $form_state['values']['email'])));
+      backdrop_set_message(t('The e-mail address %email is awaiting confirmation.', array('%email' => $form_state['values']['email'])));
       multiple_email_send_confirmation($account, multiple_email_load($form_state['values']['eid']));
       break;
   }

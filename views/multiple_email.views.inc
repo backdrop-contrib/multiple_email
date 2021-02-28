@@ -10,7 +10,7 @@
  */
 function multiple_email_views_handlers() {
   $handlers = array();
-  $handlers['info'] = array('path' => drupal_get_path('module', 'multiple_email') . '/views');
+  $handlers['info'] = array('path' => backdrop_get_path('module', 'multiple_email') . '/views');
   $handlers['handlers'] = array();
   if (module_exists('email')) {
     $handlers['handlers']['multiple_email_handler_filter_current'] = array(
@@ -83,12 +83,10 @@ function multiple_email_views_data() {
       'handler' => 'views_handler_field_numeric',
       'click sortable' => TRUE,
     ),
-
     // Information for accepting a nid as a filter.
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
     ),
-
     // Information for sorting on a nid.
     'sort' => array(
       'handler' => 'views_handler_sort',

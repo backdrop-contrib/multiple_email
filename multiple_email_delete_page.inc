@@ -48,7 +48,7 @@ function multiple_email_delete_form_submit($form, &$form_state) {
   $account = $form_state['values']['account'];
 
   multiple_email_delete_email($email->eid);
-  drupal_set_message(t('The e-mail address %email has been removed from your account.', array('%email' => $email->email)));
+  backdrop_set_message(t('The e-mail address %email has been removed from your account.', array('%email' => $email->email)));
 
   $form_state['redirect'] = 'user/' . $account->uid . '/edit/email-addresses';
 }

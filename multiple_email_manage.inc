@@ -31,7 +31,7 @@ function multiple_email_manage($form, &$form_state, $account) {
       $form['addresses'][$email->eid]['confirm'] = array(
         '#type' => 'checkbox',
         '#title' => t('Confirm this e-mail (<a href="!resend">resend</a>)',
-          array('!resend' => url('user/' . $account->uid . '/edit/email-addresses/confirm/' . $email->eid . '/resend', array('query' => drupal_get_destination())))),
+          array('!resend' => url('user/' . $account->uid . '/edit/email-addresses/confirm/' . $email->eid . '/resend', array('query' => backdrop_get_destination())))),
         '#default_value' => $email->confirmed,
       );
       if ($email->primary_address) {
@@ -90,10 +90,10 @@ function multiple_email_manage_submit($form, &$form_state) {
       if ($email->confirmed != $info['confirm']) {
         multiple_email_confirm_email($email, $info['confirm']);
         if ($info['confirm']) {
-          drupal_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
+          backdrop_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
         }
         else {
-          drupal_set_message(t('The address %email is no longer confirmed.', array('%email' => $email->email)));
+          backdrop_set_message(t('The address %email is no longer confirmed.', array('%email' => $email->email)));
         }
       }
     }
@@ -107,11 +107,11 @@ function multiple_email_manage_submit($form, &$form_state) {
       if (user_access('administer multiple emails') && $form_state['values']['confirm'] == TRUE) {
         $email = multiple_email_load($eid);
         multiple_email_confirm_email($email);
-        drupal_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
+        backdrop_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
       }
       else {
         multiple_email_send_confirmation($account, multiple_email_load($eid));
-        drupal_set_message(t('The e-mail address %email has been added to your account. Check your e-mail in order to confirm this new address.',
+        backdrop_set_message(t('The e-mail address %email has been added to your account. Check your e-mail in order to confirm this new address.',
           array('%email' => $form_state['values']['email'])));
       }
     }
@@ -135,9 +135,9 @@ function theme_multiple_email_manage($variables) {
   foreach (element_children($form['addresses']) as $eid) {
     $address = $form['addresses'][$eid]['#email'];
     $row = array();
-    $row[] = drupal_render($form['addresses'][$eid]['email']);
+    $row[] = backdrop_render($form['addresses'][$eid]['email']);
     if (isset($form['addresses'][$eid]['confirm'])) {
-      $row[] = drupal_render($form['addresses'][$eid]['confirm']);
+      $row[] = backdrop_render($form['addresses'][$eid]['confirm']);
     }
     else {
       $row[] = $address->confirmed == 1 ? t('Yes') :
@@ -147,7 +147,7 @@ function theme_multiple_email_manage($variables) {
     $ops = array();
 
     // See if they can edit this e-mail address.
-    if (user_access('administer multiple emails') || (variable_get('multiple_email_edit_emails', 0) && !$address->primary_address)) {
+    if (user_access('administer multiple emails') || (config_get('multiple_email.settings', 'multiple_email_edit_emails') && !$address->primary_address)) {
       $ops[] = l(t('Edit'), 'user/' . $account->uid . '/edit/email-addresses/edit/' . $address->eid);
     }
 
@@ -169,26 +169,26 @@ function theme_multiple_email_manage($variables) {
 
   if (empty($rows)) {
     $rows = array(array(
-      'class' => array('error'),
-      'data' => array(
-        array(
-          'colspan' => 3,
-          'data' => t('Unable to find any e-mail addresses.'),
+        'class' => array('error'),
+        'data' => array(
+          array(
+            'colspan' => 3,
+            'data' => t('Unable to find any e-mail addresses.'),
+          ),
         ),
-      ),
-    ));
+      ));
   }
 
   $rows[] = array(
-    drupal_render($form['new']['email']),
-    drupal_render($form['new']['confirm']),
+    backdrop_render($form['new']['email']),
+    backdrop_render($form['new']['confirm']),
     '',
   );
 
   $headers = array(t('E-mail'), t('Confirmed'), t('Operations'));
   $output = theme('table', array('header' => $headers, 'rows' => $rows));
 
-  $output .= drupal_render_children($form);
+  $output .= backdrop_render_children($form);
 
   return $output;
 }

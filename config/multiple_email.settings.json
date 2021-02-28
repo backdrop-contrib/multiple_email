@@ -1,0 +1,12 @@
+{
+    "_config_name": "multiple_email.settings",
+    "multiple_email_edit_emails": "0",
+    "multiple_email_password_reset": "disabled",
+    "multiple_email_hide_field": "1",
+    "multiple_email_confirm_deadline": "5",
+    "multiple_email_confirm_attempts": "3",
+    "multiple_email_confirmation_subject": "Confirm your e-mail address at !site",
+    "multiple_email_confirmation_body": "Hello,\r\n\r\nThe e-mail address '!email' has been added to your account at !site. In order to complete the registration of this email, you must confirm it by clicking the link below and entering this confirmation code: !confirm_code\r\n\r\n!confirm_url\r\n\r\nIf the web address does not appear as a link, you must copy the address out of this email, and paste it into the address bar of your web browser.\r\n\r\nIf you do not confirm this e-mail in !confirm_deadline, it will be unregistered from your account.",
+    "multiple_email_expire_subject": "Your e-mail address at !site has expired",
+    "multiple_email_expire_body": "Hello,\r\n\r\nYou have failed to confirm the the e-mail address '!email' within the confirmation period of !confirm_deadline. Therefore, the e-mail address has been removed from your account.\r\n\r\nYou may add this address again, but you must confirm the address within the specified deadline!",
+}

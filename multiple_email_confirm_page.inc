@@ -25,14 +25,14 @@ function multiple_email_confirm_page($account, $email, $code = NULL) {
   if (_multiple_email_access('confirm', $account, $email)) {
 
     menu_set_active_item('user/' . $account->uid . '/edit/email-addresses');
-    return drupal_get_form('multiple_email_confirm_form', $account, $email, $code);
+    return backdrop_get_form('multiple_email_confirm_form', $account, $email, $code);
   }
   elseif (empty($user->uid)) {
-    drupal_set_message(t('You must be signed in to confirm an address.'));
-    drupal_goto('user/login', array('query' => drupal_get_destination()));
+    backdrop_set_message(t('You must be signed in to confirm an address.'));
+    backdrop_goto('user/login', array('query' => backdrop_get_destination()));
   }
   else {
-    drupal_access_denied();
+    backdrop_access_denied();
   }
 }
 
@@ -90,11 +90,11 @@ function multiple_email_confirm_form_validate($form, &$form_state) {
 
   if ($code != '') {
     $attempts = $email->attempts + 1;
-    $allowed = (int) variable_get('multiple_email_confirm_attempts', 3);
+    $allowed = (int) config_get('multiple_email.settings', 'multiple_email_confirm_attempts');
     db_update('multiple_email')
       ->fields(array(
-        'attempts' => $attempts,
-      ))
+      'attempts' => $attempts,
+    ))
       ->condition('eid', $email->eid)
       ->execute();
 
@@ -107,17 +107,17 @@ function multiple_email_confirm_form_validate($form, &$form_state) {
       $email->confirm_code = multiple_email_code();
       db_update('multiple_email')
         ->fields(array(
-          'confirm_code' => $email->confirm_code,
-          'time_code_generated' => REQUEST_TIME,
-          'attempts' => 0,
-        ))
+        'confirm_code' => $email->confirm_code,
+        'time_code_generated' => REQUEST_TIME,
+        'attempts' => 0,
+      ))
         ->condition('eid', $email->eid)
         ->execute();
       multiple_email_send_confirmation($account, $email);
 
       // Redirect & Message
-      drupal_set_message(t('You have exhausted your allowed attempts at confirming this e-mail address. A new confirmation code has been sent.'), 'error');
-      drupal_goto('user/' . $account->uid . '/edit/email-addresses');
+      backdrop_set_message(t('You have exhausted your allowed attempts at confirming this e-mail address. A new confirmation code has been sent.'), 'error');
+      backdrop_goto('user/' . $account->uid . '/edit/email-addresses');
     }
   }
 }
@@ -132,7 +132,7 @@ function multiple_email_confirm_form_submit($form, &$form_state) {
   // Confirmation successful!
   $email = $form['#email'];
   multiple_email_confirm_email($email);
-  drupal_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
+  backdrop_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
 }
 
 /**
@@ -141,7 +141,7 @@ function multiple_email_confirm_form_submit($form, &$form_state) {
  * @param array $form_state
  *   FormAPI state array.
  * @param object $account
- *   Drupal user account object.
+ *   Backdrop user account object.
  * @param object $email
  *   Multiple E-Mails email object.
  */
@@ -168,12 +168,12 @@ function multiple_email_confirm_page_resend_submit($form, &$form_state) {
   $email->confirm_code = multiple_email_code();
   db_update('multiple_email')
     ->fields(array(
-      'confirm_code' => $email->confirm_code,
-      'time_code_generated' => REQUEST_TIME,
-      'attempts' => 0,
-    ))
+    'confirm_code' => $email->confirm_code,
+    'time_code_generated' => REQUEST_TIME,
+    'attempts' => 0,
+  ))
     ->condition('eid', $email->eid)
     ->execute();
   multiple_email_send_confirmation($account, $email);
-  drupal_set_message(t('Check your %email email for your confirmation.', ['%email' => $email->email]));
+  backdrop_set_message(t('Check your %email email for your confirmation.', ['%email' $email->email]));
 }

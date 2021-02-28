@@ -1,0 +1,24 @@
+[MultipleEmailUserTestCase]
+name = User Tests with Permission
+description = User registers for the site with use multiple emails permission, and interacts with the module.
+group = Multiple E-mail
+file = multiple_email.test
+
+[MultipleEmailBasicUserTestCase]
+name = User Tests without Permission
+description = User registers for the site without use multiple emails permission, and interacts with the module.
+group = Multiple E-mail
+file = multiple_email.test
+
+[MultipleEmailAdminUserTestCase]
+name = Admin User Tests
+description = Admin user interacts with the module.
+group = Multiple E-mail
+file = multiple_email.test
+
+[MultipleEmailLateInstallTestCase]
+name = Late Module Install
+description = Module is installed after users are already created.
+group = Multiple E-mail
+file = multiple_email.test
+

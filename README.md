@@ -1,8 +1,5 @@
-Module: Multiple E-mail Addresses
-Original Author: Joshua Benner <joshbenner@gmail.com>
-Sponsor of Drupal 5 version: Rock River Star (www.rockriverstar.com)
-
-Drupal 6 version maintainer: Shawn DeArmond (http://drupal.org/user/77785)
+Multiple E-mail Addresses
+=========================
 
 The Multiple E-mail module allows users to register additional emails for their
 user accounts. Only one e-mail address is considered to be the "primary" email
@@ -22,6 +19,19 @@ straight-forward at this point and are documented in the field descriptions.
 The module will create a menu item in the Navigation menu called 'E-Mail
 Addresses' that links to the user's e-mail management page.
 
+Installation
+------------
+
+- Install this module using the official Backdrop CMS instructions at
+  https://backdropcms.org/guide/modules.
+
+- Visit the configuration page under Administration > Configuration > User
+  accounts > Multiple E-mails (admin/config/people/multiple-email) and enter the
+  required information.
+
+- Go to any user's profile page, click on E-mail addresses link
+  (user/$uid/edit/email-addresses) and additional e-mail address[es].
+
 Hooks
 -----
 hook_multiple_email_register($email)
@@ -36,3 +46,22 @@ hook_multiple_email_confirm($email)
 hook_multiple_email_delete($eid)
   - $eid is the e-mail object ID that has just been deleted
   - Use this hook to perform actions when a user deletes an e-mail address
+
+Issues
+------
+
+Bugs and Feature requests should be reported in the Issue Queue:
+https://github.com/backdrop-contrib/multiple_email/issues.
+
+Current Maintainers
+-------------------
+
+- [Alan Mels](https://github.com/alanmels).
+
+Credits
+-------
+
+- Originally written for Drupal by Joshua Benner <joshbenner@gmail.com.
+- Ported to Backdrop CMS by [Alan Mels](https://github.com/alanmels).
+- Port sponsored by [AltaGrade](https://www.altagrade.com) - Drupal and Backdrop
+  specific hosting provider.
