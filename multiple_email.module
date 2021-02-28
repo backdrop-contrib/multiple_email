@@ -277,16 +277,16 @@ function _multiple_email_user_pass_form_validate($form, &$form_state) {
 /**
  * Implements hook_user_update().
  */
-function multiple_email_user_update(&$edit, $account, $category) {
-  if (!empty($edit['mail'])) {
-    $object = multiple_email_find_address($edit['mail']);
+function multiple_email_user_update($account) {
+  if (!empty($account->mail)) {
+    $object = multiple_email_find_address($account->mail);
     // add this to multiple email
     if (empty($object)) {
       // If an administer is making a change or user doesn't have
       // multiple emails permission, mark as confirmed.
       $confirmed = user_access('administer multiple emails') || !user_access('use multiple emails', $account);
       // confirm if action done by administer
-      $eid = multiple_email_register_email($account->uid, $edit['mail'], $confirmed);
+      $eid = multiple_email_register_email($account->uid, $account->mail, $confirmed);
       if (empty($confirmed) && !empty($eid)) {
         multiple_email_send_confirmation($account, multiple_email_load($eid));
       }
