@@ -201,7 +201,7 @@ function multiple_email_user_categories() {
 /**
  * Implements hook_user_insert().
  */
-function multiple_email_user_insert(&$edit, $account, $category) {
+function multiple_email_user_insert($account) {
   // add the new e-mail address into the Multiple E-mails section.
   $eid = multiple_email_register_email($account->uid, $account->mail, TRUE);
 }
