@@ -175,5 +175,5 @@ function multiple_email_confirm_page_resend_submit($form, &$form_state) {
     ->condition('eid', $email->eid)
     ->execute();
   multiple_email_send_confirmation($account, $email);
-  backdrop_set_message(t('Check your %email email for your confirmation.', ['%email' $email->email]));
+  backdrop_set_message(t('Check your %email email for your confirmation.', ['%email' => $email->email]));
 }
