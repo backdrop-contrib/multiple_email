@@ -44,12 +44,10 @@ function multiple_email_primary_form($form, &$form_state, $account, $email) {
 function multiple_email_primary_form_submit($form, &$form_state) {
   $email = $form_state['values']['email'];
   $account = $form_state['values']['account'];
-
   if ($email->confirmed == 0) {
     // if admin set address as primary, confirm email
     multiple_email_confirm_email($email);
   }
-
   multiple_email_make_primary($email);
   backdrop_set_message(t('%email is now your primary e-mail address.', array('%email' => $email->email)));
 
