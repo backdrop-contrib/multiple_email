@@ -61,7 +61,7 @@ Current Maintainers
 Credits
 -------
 
-- Originally written for Drupal by Joshua Benner <joshbenner@gmail.com.
+- Originally written for Drupal by Joshua Benner <joshbenner@gmail.com>.
 - Ported to Backdrop CMS by [Alan Mels](https://github.com/alanmels).
 - Port sponsored by [AltaGrade](https://www.altagrade.com) - Drupal and Backdrop
   specific hosting provider.
