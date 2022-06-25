@@ -23,33 +23,14 @@ function multiple_email_install() {
     WHERE uid != 0
     AND mail != ''
   ");
-  // Dynamically generated variable data was detected on the following lines.
-  // /multiple_email/multiple_email.module line 387
-  // /multiple_email/multiple_email.module line 393
-  // /multiple_email/multiple_email.module line 399
-  // /multiple_email/multiple_email.module line 405
-  // /multiple_email/multiple_email.module line 696
 }
 
 /**
  * Implements hook_uninstall().
  */
 function multiple_email_uninstall() {
-  $variables = array(
-    'multiple_email_hide_field',
-    'multiple_email_edit_emails',
-    'multiple_email_password_reset',
-    'multiple_email_confirm_deadline',
-    'multiple_email_confirm_attempts',
-    'multiple_email_confirmation_subject',
-    'multiple_email_confirmation_body',
-    'multiple_email_expire_subject',
-    'multiple_email_expire_body',
-  );
-  foreach ($variables as $key) {
-    // TODO This variable was probably removed in Backdrop without replacement.
-    variable_del($key);
-  }
+  config('multiple_email.settings.json')->delete();
+  db_query('DROP TABLE {multiple_email}');
 }
 
 /**
@@ -57,7 +38,7 @@ function multiple_email_uninstall() {
  */
 function multiple_email_enable() {
   backdrop_set_message(t("Multiple E-mail settings are available under !link", array(
-    '!link' => l(t('Administer') . ' > ' . t('Configuration') . ' > ' . t('People') . ' > ' . t('Multiple E-mail'), 'admin/config/people/multiple-email'),
+    '!link' => l(t('Configuration') . ' > ' . t('User Accounts') . ' > ' . t('Multiple E-mails'), 'admin/config/people/multiple-email'),
   )));
 }
 
@@ -121,44 +102,4 @@ function multiple_email_schema() {
   );
 
   return $schema;
-}
-
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function multiple_email_update_7100() { }
-
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function multiple_email_update_7101() { }
-
-/**
- * Implements hook_update_last_removed().
- */
-function multiple_email_update_last_removed() {
-  return 7101;
-}
-
-/**
- * Implements hook_update_N().
- */
-function multiple_email_update_1000() {
-  $config = config('multiple_email.settings');
-  $config->set('multiple_email_edit_emails', update_variable_get('multiple_email_edit_emails', 'novalue'));
-  $config->set('multiple_email_password_reset', update_variable_get('multiple_email_password_reset', 'disabled'));
-  $config->set('multiple_email_hide_field', update_variable_get('multiple_email_hide_field', '1'));
-  $config->set('multiple_email_confirm_deadline', update_variable_get('multiple_email_confirm_deadline', '5'));
-  $config->set('multiple_email_confirm_attempts', update_variable_get('multiple_email_confirm_attempts', '3'));
-  $config->set('multiple_email_confirmation_subject', update_variable_get('multiple_email_confirmation_subject', 'dynamic value in file /multiple_email/multiple_email.module line 387'));
-  $config->set('multiple_email_confirmation_body', update_variable_get('multiple_email_confirmation_body', 'dynamic value in file /multiple_email/multiple_email.module line 393'));
-  $config->set('multiple_email_expire_subject', update_variable_get('multiple_email_expire_subject', 'dynamic value in file /multiple_email/multiple_email.module line 399'));
-  $config->set('multiple_email_expire_body', update_variable_get('multiple_email_expire_body', 'dynamic value in file /multiple_email/multiple_email.module line 405'));
-  $config->set('multiple_email_type_part', update_variable_get('multiple_email_type_part', 'dynamic variable in file /multiple_email/multiple_email.module line 696'));
-  update_variable_del('multiple_email_edit_emails');
-  update_variable_del('multiple_email_password_reset');
-  update_variable_del('multiple_email_hide_field');
-  update_variable_del('multiple_email_confirm_deadline');
-  update_variable_del('multiple_email_confirm_attempts');
-  update_variable_del('multiple_email_confirmation_subject');
-  update_variable_del('multiple_email_confirmation_body');
-  update_variable_del('multiple_email_expire_subject');
-  update_variable_del('multiple_email_expire_body');
-  update_variable_del('multiple_email_type_part');
 }

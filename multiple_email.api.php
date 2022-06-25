@@ -17,7 +17,7 @@
  *   The fully-loaded email object created by Multiple Email.
  */
 function hook_multiple_email_register($email) {
-  drupal_set_message(t('Do not forget to confirm %email!', array('%email' => $email->mail)));
+  backdrop_set_message(t('Do not forget to confirm %email!', array('%email' => $email->mail)));
 }
 
 /**
@@ -29,7 +29,7 @@ function hook_multiple_email_register($email) {
  *   The fully-loaded email object created by Multiple Email.
  */
 function hook_multiple_email_confirm($email) {
-  drupal_set_message(t('Now that %email has been confirmed, you may make it your primary address.', array('%email' => $email->mail)));
+  backdrop_set_message(t('Now that %email has been confirmed, you may make it your primary address.', array('%email' => $email->mail)));
 }
 
 /**
