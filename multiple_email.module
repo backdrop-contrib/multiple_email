@@ -242,7 +242,7 @@ function _multiple_email_user_register_form_validate($element, &$form_state, $fo
     if (!empty($email)
       // If this is not a primary email. Primary e-mail is checked by core.
         && empty($email->primary_address)
-      // If annoymous or mail isn't current user.
+      // If anonymous or mail isn't current user.
         && (empty($account->uid) || $account->uid != $email->uid)) {
       form_error($element, t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', array('%email' => $mail, '@password' => url('user/password'))));
     }
