@@ -646,7 +646,7 @@ function multiple_email_send_confirmation($account, $email) {
     'body' => multiple_email_message_part('body', 'confirmation', $account, $email),
   );
 
-  $from = config_get('system.performance', 'site_mail');
+  $from = config_get('system.core', 'site_mail');
   backdrop_mail('multiple_email', 'confirmation', $email->email, $language, $params, $from);
 }
 
