@@ -763,7 +763,7 @@ function multiple_email_var_replace($text, $account, $email) {
   $vars = array(
     '!username' => $account->name,
     '!email' => $email->email,
-    '!site' => config_get('system.performance', 'site_name'),
+    '!site' => config_get('system.core', 'site_name'),
     '!confirm_code' => $email->confirm_code,
     '!confirm_url' => url('user/login', array('query' => $query, 'absolute' => TRUE)),
     '!confirm_deadline' => ($deadline ? format_plural($deadline, t('1 day'), t('@days days', array('@days' => $deadline))) : t('unlimited days')),
