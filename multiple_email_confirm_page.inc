@@ -22,17 +22,24 @@
  */
 function multiple_email_confirm_page($account, $email, $code = NULL) {
   global $user;
-  if (_multiple_email_access('confirm', $account, $email)) {
-
+  if ($user->uid == '0') { // User is anonymous.
+    if (isset($email->uid)) {
+      $account = user_load($email->uid);
+    }
+    elseif (is_numeric((arg(1)))) {
+      $account = user_load(arg(1));
+    }
     menu_set_active_item('user/' . $account->uid . '/edit/email-addresses');
     return backdrop_get_form('multiple_email_confirm_form', $account, $email, $code);
   }
-  elseif (empty($user->uid)) {
-    backdrop_set_message(t('You must be signed in to confirm an address.'));
-    backdrop_goto('user/login', array('query' => backdrop_get_destination()));
-  }
-  else {
-    backdrop_access_denied();
+  else { // User is logged in.
+    if (_multiple_email_access('confirm', $account, $email)) {
+      menu_set_active_item('user/' . $account->uid . '/edit/email-addresses');
+      return backdrop_get_form('multiple_email_confirm_form', $account, $email, $code);
+    }
+    else {
+      backdrop_access_denied();
+    }
   }
 }
 
@@ -133,6 +140,10 @@ function multiple_email_confirm_form_submit($form, &$form_state) {
   $email = $form['#email'];
   multiple_email_confirm_email($email);
   backdrop_set_message(t('The address %email has been confirmed!', array('%email' => $email->email)));
+  // Log in the user.
+  global $user;
+  $user = user_load($email->uid);
+  backdrop_session_regenerate();
 }
 
 /**
