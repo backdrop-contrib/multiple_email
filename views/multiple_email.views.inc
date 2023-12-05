@@ -146,7 +146,7 @@ function multiple_email_views_data() {
       'help' => t("Match current user's multiple e-mail addresses to CCK E-mail field."),
       'real_field' => 'email',
       'filter' => array(
-        'handler' => 'multiple_email_views_handler_filter_email_current',
+        'handler' => 'multiple_email_handler_filter_current',
         'allow empty' => TRUE,
       ),
     );
