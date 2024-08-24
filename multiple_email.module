@@ -251,6 +251,34 @@ function _multiple_email_user_register_form_validate($element, &$form_state, $fo
 /**
  * Implements hook_form_FORM_ID_alter().
  */
+function multiple_email_form_user_login_alter(&$form, &$form_state, $form_id) {
+  array_unshift($form['#validate'], '_multiple_email_user_login_form_validate');
+}
+
+/**
+ * Custom validator for the user login form.
+ */
+function _multiple_email_user_login_form_validate($form, &$form_state) {
+  if (valid_email_address($form['name']['#value'])) {
+    if ($email = multiple_email_find_address($form['name']['#value'])) {
+      $account = user_load($email->uid);
+      if (config_get('multiple_email.settings', 'multiple_email_password_reset') === 'confirmed' && $email->confirmed != 1) {
+        form_error($form['name'], t('Your email address, %email, is registered but hasn\'t been confirmed yet. Please check your inbox or spam folder for the confirmation email and follow the instructions to verify your email address.', array('%email' => $email->email)));
+        multiple_email_send_confirmation($account, $email);
+        return;
+      }
+      $form_state['values']['name'] = $account->mail;
+    }
+  }
+  else {
+    form_error($form['name'], t('Please enter a correct e-mail address.'));
+  }
+}
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
 function multiple_email_form_user_pass_alter(&$form, &$form_state, $form_id) {
   if (!isset($form['mail']) && config_get('multiple_email.settings', 'multiple_email_password_reset') !== 'disabled') {
     unset($form['#validate']);
