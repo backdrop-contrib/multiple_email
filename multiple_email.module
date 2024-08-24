@@ -252,8 +252,11 @@ function _multiple_email_user_register_form_validate($element, &$form_state, $fo
  * Implements hook_form_FORM_ID_alter().
  */
 function multiple_email_form_user_pass_alter(&$form, &$form_state, $form_id) {
-  if (config_get('multiple_email.settings', 'multiple_email_password_reset') !== 'disabled') {
-    array_unshift($form['#validate'], '_multiple_email_user_pass_form_validate');
+  if (!isset($form['mail']) && config_get('multiple_email.settings', 'multiple_email_password_reset') !== 'disabled') {
+    unset($form['#validate']);
+    unset($form['#submit']);
+    $form['#validate'][] = '_multiple_email_user_pass_form_validate';
+    $form['#submit'][] = '_multiple_email_user_pass_form_submit';
   }
 }
 
@@ -261,16 +264,50 @@ function multiple_email_form_user_pass_alter(&$form, &$form_state, $form_id) {
  * Custom validator for the user password reset form.
  */
 function _multiple_email_user_pass_form_validate($form, &$form_state) {
-  if (valid_email_address($form['name']['#value']) && $email = multiple_email_find_address($form['name']['#value'])) {
-    if (config_get('multiple_email.settings', 'multiple_email_password_reset') === 'confirmed' && $email->confirmed != 1) {
-      form_error($form['name'], t('The e-mail address %email is registered but has not been confirmed.', array('%email' => $email->email)));
-      return;
+  if (valid_email_address($form['name']['#value'])) {
+    if ($email = multiple_email_find_address($form['name']['#value'])) {
+      $account = user_load($email->uid);
+      if (config_get('multiple_email.settings', 'multiple_email_password_reset') === 'confirmed' && $email->confirmed != 1) {
+        form_error($form['name'], t('Your email address, %email, is registered but hasn\'t been confirmed yet. Please check your inbox or spam folder for the confirmation email and follow the instructions to verify your email address.', array('%email' => $email->email)));
+        multiple_email_send_confirmation($account, $email);
+        return;
+      }
+      $form_state['values']['account'] = $account;
     }
-
-    $account = user_load($email->uid);
-    $account->mail = $email->email;
-    $form_state['values']['name'] = $account->name;
   }
+  else {
+    form_error($form['name'], t('Please enter a correct e-mail address.'));
+  }
+}
+
+/**
+ * Custom form submission handler for _multiple_email_user_pass_form_validate().
+ *
+ * @see _multiple_email_user_pass_form_validate()
+ */
+function _multiple_email_user_pass_form_submit($form, &$form_state) {
+  global $language;
+
+  $account = $form_state['values']['account'];
+  // Mail one time login URL and instructions using current language.
+  $mail = _multiple_email_user_mail_notify($form_state['input']['name'], $account, $language);
+  if (!empty($mail)) {
+    watchdog('user', 'Password reset instructions mailed to %name at %email.', array('%name' => $account->name, '%email' => $account->mail));
+    backdrop_set_message(t('Further instructions have been sent to your email address.'));
+  }
+
+  $form_state['redirect'] = 'user';
+  return;
+}
+
+/**
+ * Send a password reset notification to secondary e-mail address.
+ */
+function _multiple_email_user_mail_notify($secondary_email, $account, $language = NULL) {
+  $params['account'] = $account;
+  $language = $language ? $language : user_preferred_language($account);
+  $mail = backdrop_mail('user', 'password_reset', $secondary_email, $language, $params);
+  return empty($mail) ? NULL : $mail['result'];
 }
 
 /**
