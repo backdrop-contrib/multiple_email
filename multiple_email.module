@@ -5,17 +5,6 @@
  * multiple_email module file
  */
 
-/**
- * Implements hook_help().
- */
-function multiple_email_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#multiple_email':
-    case 'admin/help/multiple_email':
-      $file = backdrop_get_path('module', 'multiple_email') . "/README.txt";
-      return check_markup(file_get_contents($file), 'filtered_html');
-  }
-}
 
 /**
  * Implements hook_permission().
