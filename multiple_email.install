@@ -46,6 +46,17 @@ function multiple_email_enable() {
  * Implements hook_schema().
  */
 function multiple_email_schema() {
+
+  // If the table already exists (e.g., from a prior install), avoid trying to
+  // recreate it during module installation. Install attempts to create all
+  // tables returned here; returning an empty schema when the module is not yet
+  // enabled sidesteps the DatabaseSchemaObjectExistsException while preserving
+  // the existing data. Once enabled, hook_schema() will return the schema again
+  // for updates.
+  if (!module_exists('multiple_email') && db_table_exists('multiple_email')) {
+    return array();
+  }
+
   $schema['multiple_email'] = array(
     'description' => 'The base table for multiple email.',
     'fields' => array(
