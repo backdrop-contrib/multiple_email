@@ -809,12 +809,10 @@ function multiple_email_expire_address($eid) {
  */
 function multiple_email_message_part($part, $type, $account, $email) {
   $func = "multiple_email_default_{$part}";
-  if (module_exists('i18n_variable')) {
-    $language = user_preferred_language($account);
-    $setting = i18n_variable_get("multiple_email_{$type}_{$part}", $language->language, $func($type));
-  }
-  else {
-    $setting = config_get('multiple_email.settings', "multiple_email_{$type}_{$part}");
+  $setting = config_get('multiple_email.settings', "multiple_email_{$type}_{$part}");
+  if ($setting === NULL && function_exists($func)) {
+    // Fallback to the built-in default when no config exists.
+    $setting = $func($type);
   }
   return multiple_email_var_replace($setting, $account, $email);
 }

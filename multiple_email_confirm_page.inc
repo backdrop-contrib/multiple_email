@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Functions for displaying and processing the confirmation page
+ * Functions for displaying and processing the confirmation page.
  */
 
 /**
@@ -22,17 +22,22 @@
  */
 function multiple_email_confirm_page($account, $email, $code = NULL) {
   global $user;
-  if ($user->uid == '0') { // User is anonymous.
+  // User is anonymous.
+  if ($user->uid == '0') {
     if (isset($email->uid)) {
       $account = user_load($email->uid);
     }
-    elseif (is_numeric((arg(1)))) {
-      $account = user_load(arg(1));
+    else {
+      $args = backdrop_get_path_args();
+      if (!empty($args[1]) && is_numeric($args[1])) {
+        $account = user_load($args[1]);
+      }
     }
     menu_set_active_item('user/' . $account->uid . '/edit/email-addresses');
     return backdrop_get_form('multiple_email_confirm_form', $account, $email, $code);
   }
-  else { // User is logged in.
+  // User is logged in.
+  else {
     if (_multiple_email_access('confirm', $account, $email)) {
       menu_set_active_item('user/' . $account->uid . '/edit/email-addresses');
       return backdrop_get_form('multiple_email_confirm_form', $account, $email, $code);
@@ -44,7 +49,7 @@ function multiple_email_confirm_page($account, $email, $code = NULL) {
 }
 
 /**
- * Builds e-mail confirmation form
+ * Builds e-mail confirmation form.
  *
  * @ingroup forms
  *
@@ -100,8 +105,8 @@ function multiple_email_confirm_form_validate($form, &$form_state) {
     $allowed = (int) config_get('multiple_email.settings', 'multiple_email_confirm_attempts');
     db_update('multiple_email')
       ->fields(array(
-      'attempts' => $attempts,
-    ))
+        'attempts' => $attempts,
+      ))
       ->condition('eid', $email->eid)
       ->execute();
 
@@ -114,15 +119,15 @@ function multiple_email_confirm_form_validate($form, &$form_state) {
       $email->confirm_code = multiple_email_code();
       db_update('multiple_email')
         ->fields(array(
-        'confirm_code' => $email->confirm_code,
-        'time_code_generated' => REQUEST_TIME,
-        'attempts' => 0,
-      ))
+          'confirm_code' => $email->confirm_code,
+          'time_code_generated' => REQUEST_TIME,
+          'attempts' => 0,
+        ))
         ->condition('eid', $email->eid)
         ->execute();
       multiple_email_send_confirmation($account, $email);
 
-      // Redirect & Message
+      // Redirect & Message.
       backdrop_set_message(t('You have exhausted your allowed attempts at confirming this e-mail address. A new confirmation code has been sent.'), 'error');
       backdrop_goto('user/' . $account->uid . '/edit/email-addresses');
     }
@@ -179,10 +184,10 @@ function multiple_email_confirm_page_resend_submit($form, &$form_state) {
   $email->confirm_code = multiple_email_code();
   db_update('multiple_email')
     ->fields(array(
-    'confirm_code' => $email->confirm_code,
-    'time_code_generated' => REQUEST_TIME,
-    'attempts' => 0,
-  ))
+      'confirm_code' => $email->confirm_code,
+      'time_code_generated' => REQUEST_TIME,
+      'attempts' => 0,
+    ))
     ->condition('eid', $email->eid)
     ->execute();
   multiple_email_send_confirmation($account, $email);
