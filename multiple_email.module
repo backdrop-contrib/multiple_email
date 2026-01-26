@@ -37,20 +37,55 @@ function multiple_email_menu() {
     'access arguments' => array('administer multiple emails'),
   );
 
+  // Temporary secondary tabs under /user/1 for testing.
+  $items['user/%user/test-alpha'] = array(
+    'title' => 'View',
+    'page callback' => 'multiple_email_test_view_redirect',
+    'page arguments' => array(1),
+    'access callback' => 'user_view_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK | MENU_LINKS_TO_PARENT,
+    'tab_parent' => 'user/%/view',
+    'tab_root' => 'user/%',
+    'weight' => 1,
+  );
+
+  $items['user/%user/test-bravo'] = array(
+    'title' => 'Edit',
+    'page callback' => 'multiple_email_test_edit_redirect',
+    'page arguments' => array(1),
+    'access callback' => 'user_view_access',
+    'access arguments' => array(1),
+    // Keep this path available but do not render it as a tab.
+    'type' => MENU_CALLBACK,
+    'tab_parent' => 'user/%/view',
+    'tab_root' => 'user/%',
+    'weight' => 2,
+  );
+
+  // Reuse the third secondary tab slot for e-mail management.
+  // Email addresses secondary tab (real path, no test prefix).
   $items['user/%user/edit/email-addresses'] = array(
-    'title' => 'View E-mail Addresses',
+    'title' => 'Email addresses',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('multiple_email_manage', 1),
     'access callback' => '_multiple_email_access',
     'access arguments' => array('pages', 1),
     'file' => 'multiple_email_manage.inc',
     'load arguments' => array('%map', '%index'),
-    // Make this a primary tab under the user page so it always renders.
     'type' => MENU_LOCAL_TASK,
-    'tab_parent' => 'user/%user',
-    'tab_root' => 'user/%user',
-    'weight' => 5,
+    'tab_parent' => 'user/%/view',
+    'tab_root' => 'user/%',
+    'weight' => 3,
   );
+
+  // Ensure email addresses tab stays a secondary task under Profile.
+  if (!empty($items['user/%user/edit/email-addresses'])) {
+    $items['user/%user/edit/email-addresses']['tab_root'] = 'user/%';
+    $items['user/%user/edit/email-addresses']['tab_parent'] = 'user/%/view';
+    $items['user/%user/edit/email-addresses']['type'] = MENU_LOCAL_TASK;
+    $items['user/%user/edit/email-addresses']['weight'] = 3;
+  }
 
   $items['user/%user/edit/email-addresses/confirm/%multiple_email'] = array(
     'title' => 'Confirm E-mail Address',
@@ -116,11 +151,10 @@ function multiple_email_config_info() {
 function _multiple_email_access($op, $account, $email = NULL) {
   global $user;
   $administer_user = user_access('administer multiple emails');
-  // Basic permission check to access any page.
-  // If the account does not have access to 'use multiple emails', return false.
-  // If the account does not belong to the current user and the user does not
-  // have 'administer multiple emails' permission, return false.
-  if (!user_access('use multiple emails', $account) || ($account->uid != $user->uid && !$administer_user)) {
+  // Basic permission check to access any page: allow if the *current* user
+  // can administer or use multiple emails, and either owns the account or is
+  // an admin managing another account.
+  if ((!user_access('use multiple emails') && !$administer_user) || ($account->uid != $user->uid && !$administer_user)) {
     return FALSE;
   }
 
@@ -184,10 +218,27 @@ function multiple_email_menu_alter(&$items) {
 
   // Keep email addresses as a primary tab under the user page (same as Edit).
   if (!empty($items['user/%user/edit/email-addresses'])) {
-    $items['user/%user/edit/email-addresses']['tab_root'] = 'user/%user';
-    $items['user/%user/edit/email-addresses']['tab_parent'] = 'user/%user';
+    // Keep Email addresses as a secondary tab under Profile.
+    $items['user/%user/edit/email-addresses']['tab_root'] = 'user/%';
+    $items['user/%user/edit/email-addresses']['tab_parent'] = 'user/%/view';
     $items['user/%user/edit/email-addresses']['type'] = MENU_LOCAL_TASK;
-    $items['user/%user/edit/email-addresses']['weight'] = 5;
+    $items['user/%user/edit/email-addresses']['weight'] = 3;
+  }
+
+  // Hide the core primary Edit tab so only custom tabs remain visible.
+  if (!empty($items['user/%user/edit'])) {
+    // Keep edit reachable but make it a secondary task under Profile, linking
+    // back to its parent so it does not appear as a primary tab.
+    $items['user/%user/edit']['tab_root'] = 'user/%';
+    $items['user/%user/edit']['tab_parent'] = 'user/%/view';
+    // Leave as a secondary tab that links to itself (no primary exposure).
+    $items['user/%user/edit']['type'] = MENU_LOCAL_TASK;
+    $items['user/%user/edit']['weight'] = 2;
+  }
+
+  // Rename the primary View tab to Profile.
+  if (!empty($items['user/%user/view'])) {
+    $items['user/%user/view']['title'] = 'Profile';
   }
 }
 
@@ -217,6 +268,39 @@ function multiple_email_user_delete($account) {
   db_delete('multiple_email')
     ->condition('uid', $account->uid)
     ->execute();
+}
+
+/**
+ * Simple placeholder page for temporary test tabs.
+ */
+function multiple_email_test_tab_page($account, $label) {
+  $output = array(
+    'wrapper' => array(
+      '#markup' => '<p>Test tab: ' . check_plain($label) . '</p>',
+    ),
+  );
+  return $output;
+}
+
+/**
+ * Redirect the secondary Edit tab to the canonical user edit form.
+ */
+function multiple_email_test_edit_redirect($account) {
+  backdrop_goto('user/' . $account->uid . '/edit', array('alias' => FALSE));
+}
+
+/**
+ * Redirect the secondary View tab to the profile view.
+ */
+function multiple_email_test_view_redirect($account) {
+  backdrop_goto('user/' . $account->uid . '/view', array('alias' => FALSE));
+}
+
+/**
+ * Redirect the Email addresses tab to the email management form.
+ */
+function multiple_email_test_email_redirect($account) {
+  backdrop_goto('user/' . $account->uid . '/edit/email-addresses', array('alias' => FALSE));
 }
 
 /**
