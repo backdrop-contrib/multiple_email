@@ -27,6 +27,20 @@ function multiple_email_install() {
 
   // Mark schema as installed (no updates defined, so version 0).
   backdrop_set_installed_schema_version('multiple_email', 0);
+
+  // Grant "use multiple emails" to authenticated users by default.
+  $rid = defined('BACKDROP_AUTHENTICATED_ROLE') ? BACKDROP_AUTHENTICATED_ROLE : NULL;
+  if (!$rid) {
+    foreach (user_roles() as $role_id => $role_name) {
+      if ($role_name === 'authenticated user') {
+        $rid = $role_id;
+        break;
+      }
+    }
+  }
+  if ($rid) {
+    user_role_grant_permissions($rid, array('use multiple emails'));
+  }
 }
 
 /**
@@ -46,6 +60,16 @@ function multiple_email_uninstall() {
  * Implements hook_enable().
  */
 function multiple_email_enable() {
+  // Ensure the data table exists when the module is enabled.
+  if (!db_table_exists('multiple_email')) {
+    try {
+      backdrop_install_schema('multiple_email');
+    }
+    catch (Exception $e) {
+      watchdog('multiple_email', 'Failed to create multiple_email table on enable: @msg', array('@msg' => $e->getMessage()), WATCHDOG_ERROR);
+    }
+  }
+
   backdrop_set_message(t("Multiple E-mail settings are available under !link", array(
     '!link' => l(t('Configuration') . ' > ' . t('User Accounts') . ' > ' . t('Multiple E-mails'), 'admin/config/people/multiple-email'),
   )));
@@ -55,9 +79,12 @@ function multiple_email_enable() {
  * Implements hook_schema().
  */
 function multiple_email_schema() {
-  // Always drop any existing table before returning the schema to guarantee
-  // a clean create, even on sites that may have leftover data.
-  if (db_table_exists('multiple_email')) {
+  $schema_version = backdrop_get_installed_schema_version('multiple_email');
+
+  // If the module is not installed yet but the table exists, drop it so
+  // installation can recreate it cleanly. Once installed, do not drop to
+  // avoid data loss during cache rebuilds or schema inspections.
+  if (($schema_version === SCHEMA_UNINSTALLED || $schema_version === NULL) && db_table_exists('multiple_email')) {
     try {
       db_drop_table('multiple_email');
     }
@@ -129,4 +156,43 @@ function multiple_email_schema() {
   );
 
   return $schema;
+}
+
+/**
+ * Recreate the data table if it is missing.
+ */
+function multiple_email_update_1000() {
+  if (db_table_exists('multiple_email')) {
+    return t('multiple_email table already exists.');
+  }
+
+  try {
+    backdrop_install_schema('multiple_email');
+    return t('Recreated missing multiple_email table.');
+  }
+  catch (Exception $e) {
+    watchdog('multiple_email', 'Failed to recreate multiple_email table in update_1000: @msg', array('@msg' => $e->getMessage()), WATCHDOG_ERROR);
+    throw $e;
+  }
+}
+
+/**
+ * Grant default permission to authenticated users.
+ */
+function multiple_email_update_1001() {
+  $rid = defined('BACKDROP_AUTHENTICATED_ROLE') ? BACKDROP_AUTHENTICATED_ROLE : NULL;
+  if (!$rid) {
+    foreach (user_roles() as $role_id => $role_name) {
+      if ($role_name === 'authenticated user') {
+        $rid = $role_id;
+        break;
+      }
+    }
+  }
+  if ($rid) {
+    user_role_grant_permissions($rid, array('use multiple emails'));
+    return t('Granted "use multiple emails" to authenticated users.');
+  }
+
+  return t('Could not determine authenticated user role to grant permission.');
 }
