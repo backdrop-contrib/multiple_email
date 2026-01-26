@@ -45,7 +45,11 @@ function multiple_email_menu() {
     'access arguments' => array('pages', 1),
     'file' => 'multiple_email_manage.inc',
     'load arguments' => array('%map', '%index'),
-    'type' => MENU_DEFAULT_LOCAL_TASK,
+    // Make this a primary tab under the user page so it always renders.
+    'type' => MENU_LOCAL_TASK,
+    'tab_parent' => 'user/%user',
+    'tab_root' => 'user/%user',
+    'weight' => 5,
   );
 
   $items['user/%user/edit/email-addresses/confirm/%multiple_email'] = array(
@@ -176,6 +180,14 @@ function multiple_email_menu_alter(&$items) {
       'file' => 'multiple_email_manage.inc',
       'file path' => backdrop_get_path('module', 'multiple_email'),
     ) + $items['user/%user_category/edit/email-addresses'];
+  }
+
+  // Keep email addresses as a primary tab under the user page (same as Edit).
+  if (!empty($items['user/%user/edit/email-addresses'])) {
+    $items['user/%user/edit/email-addresses']['tab_root'] = 'user/%user';
+    $items['user/%user/edit/email-addresses']['tab_parent'] = 'user/%user';
+    $items['user/%user/edit/email-addresses']['type'] = MENU_LOCAL_TASK;
+    $items['user/%user/edit/email-addresses']['weight'] = 5;
   }
 }
 
