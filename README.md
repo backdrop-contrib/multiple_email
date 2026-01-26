@@ -1,67 +1,52 @@
-Multiple E-mail Addresses
-=========================
+# Multiple E-mail Addresses
 
-The Multiple E-mail module allows users to register additional emails for their
-user accounts. Only one e-mail address is considered to be the "primary" email
-address, and will continue to behave as normal. Non-primary accounts are
-mostly functionally meaningless, except that during user registration any
-e-mail address registered to a user cannot be used to create a new account.
+Add and manage multiple e-mail addresses per user account in Backdrop. Users can register extra addresses, confirm them, pick any confirmed address as primary, and manage them from their profile without exposing the core primary tab.
 
-Users may select any confirmed e-mail address to become their primary email
-address. This means that the user account edit page's e-mail address field will
-not change the user's e-mail address. The default settings for the module will
-actually hide the e-mail address field on the user account edit page.
+## Features
+- Multiple e-mail addresses per user with one designated primary.
+- Optional hiding of the core e-mail field on the profile edit form.
+- Per-address confirmation flow with resend support.
+- Ability to promote any confirmed address to primary.
+- Optional editing and deletion of non-primary addresses.
+- Password reset routing to confirmed secondary addresses (configurable).
+- Dedicated profile tab for managing addresses: `user/%/edit/email-addresses`.
 
-Once the module is installed, administration settings are available under Site
-Configuration -> Multiple E-mail Settings. The configuration options are rather
-straight-forward at this point and are documented in the field descriptions.
+## Requirements
+- Backdrop CMS 1.x
 
-The module will create a menu item in the Navigation menu called 'E-Mail
-Addresses' that links to the user's e-mail management page.
+## Installation
+1) Install the module using the standard Backdrop process: https://backdropcms.org/guide/modules.
+2) Navigate to Administration › Configuration › User accounts › Multiple E-mails (`admin/config/people/multiple-email`) to review settings.
+3) Assign permissions as needed (see below).
 
-Installation
-------------
+## Configuration
+Key settings include:
+- Hide e-mail field on the main profile edit form for users allowed multiple e-mails.
+- Allow editing of non-primary addresses.
+- Control password reset delivery (disabled, confirmed-only, all addresses).
+- Confirmation attempt limits and expiration window.
+All settings live at `admin/config/people/multiple-email` with inline help text.
 
-- Install this module using the official Backdrop CMS instructions at
-  https://backdropcms.org/guide/modules.
+## Usage
+- Open a user’s profile and use the Email addresses tab (`user/%/edit/email-addresses`) to add, confirm, resend confirmation, mark primary, edit, or delete addresses.
+- Primary address changes happen in this tab; the core profile e-mail field can be hidden to avoid confusion.
 
-- Visit the configuration page under Administration > Configuration > User
-  accounts > Multiple E-mails (admin/config/people/multiple-email) and enter the
-  required information.
+## Permissions
+- `use multiple emails` — allow users to add/manage their own additional addresses.
+- `administer multiple emails` — full administration of settings and any user’s addresses.
 
-- Go to any user's profile page, click on E-mail addresses link
-  (user/$uid/edit/email-addresses) and additional e-mail address[es].
+## Hooks
+- `hook_multiple_email_register($email)` — fires when an address is registered (before confirmation).
+- `hook_multiple_email_confirm($email)` — fires when an address is confirmed.
+- `hook_multiple_email_delete($eid)` — fires when an address is deleted.
 
-Hooks
------
-hook_multiple_email_register($email)
-  - $email is the e-mail object that has just been registered
-  - Use this hook to perform actions when a user registers an e-mail address
-    (but isn't confirmed yet)
+## Issues
+Report bugs and feature requests at https://github.com/backdrop-contrib/multiple_email/issues.
 
-hook_multiple_email_confirm($email)
-  - $email is the e-mail object that has just been registered
-  - Use this hook to perform actions when a user confirms an e-mail address
+## Current Maintainers
+- [Alan Mels](https://github.com/alanmels)
 
-hook_multiple_email_delete($eid)
-  - $eid is the e-mail object ID that has just been deleted
-  - Use this hook to perform actions when a user deletes an e-mail address
-
-Issues
-------
-
-Bugs and Feature requests should be reported in the Issue Queue:
-https://github.com/backdrop-contrib/multiple_email/issues.
-
-Current Maintainers
--------------------
-
-- [Alan Mels](https://github.com/alanmels).
-
-Credits
--------
-
+## Credits
 - Originally written for Drupal by Joshua Benner <joshbenner@gmail.com>.
 - Ported to Backdrop CMS by [Alan Mels](https://github.com/alanmels).
-- Port sponsored by [AltaGrade](https://www.altagrade.com) - Drupal and Backdrop
-  specific hosting provider.
+- Port sponsored by [AltaGrade](https://www.altagrade.com), a Drupal and Backdrop hosting provider.

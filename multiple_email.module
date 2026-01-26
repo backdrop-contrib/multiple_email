@@ -37,10 +37,10 @@ function multiple_email_menu() {
     'access arguments' => array('administer multiple emails'),
   );
 
-  // Temporary secondary tabs under /user/1 for testing.
-  $items['user/%user/test-alpha'] = array(
+  // Secondary View tab under Profile (links to the canonical view page).
+  $items['user/%user/view-tab'] = array(
     'title' => 'View',
-    'page callback' => 'multiple_email_test_view_redirect',
+    'page callback' => 'multiple_email_view_tab_redirect',
     'page arguments' => array(1),
     'access callback' => 'user_view_access',
     'access arguments' => array(1),
@@ -48,19 +48,6 @@ function multiple_email_menu() {
     'tab_parent' => 'user/%/view',
     'tab_root' => 'user/%',
     'weight' => 1,
-  );
-
-  $items['user/%user/test-bravo'] = array(
-    'title' => 'Edit',
-    'page callback' => 'multiple_email_test_edit_redirect',
-    'page arguments' => array(1),
-    'access callback' => 'user_view_access',
-    'access arguments' => array(1),
-    // Keep this path available but do not render it as a tab.
-    'type' => MENU_CALLBACK,
-    'tab_parent' => 'user/%/view',
-    'tab_root' => 'user/%',
-    'weight' => 2,
   );
 
   // Reuse the third secondary tab slot for e-mail management.
@@ -271,36 +258,10 @@ function multiple_email_user_delete($account) {
 }
 
 /**
- * Simple placeholder page for temporary test tabs.
- */
-function multiple_email_test_tab_page($account, $label) {
-  $output = array(
-    'wrapper' => array(
-      '#markup' => '<p>Test tab: ' . check_plain($label) . '</p>',
-    ),
-  );
-  return $output;
-}
-
-/**
- * Redirect the secondary Edit tab to the canonical user edit form.
- */
-function multiple_email_test_edit_redirect($account) {
-  backdrop_goto('user/' . $account->uid . '/edit', array('alias' => FALSE));
-}
-
-/**
  * Redirect the secondary View tab to the profile view.
  */
-function multiple_email_test_view_redirect($account) {
+function multiple_email_view_tab_redirect($account) {
   backdrop_goto('user/' . $account->uid . '/view', array('alias' => FALSE));
-}
-
-/**
- * Redirect the Email addresses tab to the email management form.
- */
-function multiple_email_test_email_redirect($account) {
-  backdrop_goto('user/' . $account->uid . '/edit/email-addresses', array('alias' => FALSE));
 }
 
 /**
@@ -467,11 +428,8 @@ function multiple_email_form_user_profile_form_alter(&$form, $form_state) {
   if (isset($form['account']['mail']) &&
       user_access('use multiple emails', $form['#user']) &&
       config_get('multiple_email.settings', 'multiple_email_hide_field')) {
-        $form['account']['mail']['#weight'] = '10';
-        $form['account']['mail']['#disabled'] = TRUE;
-        $form['account']['mail']['#required'] = FALSE;
-        $form['account']['mail']['#value'] = !empty($form['account']['mail']['#default_value']) ? $form['account']['mail']['#default_value'] : '';
-        $form['account']['mail']['#description'] = t('E-mail addresses are managed on the !multiple_email tab.', array('!multiple_email' => l(t('E-mail addresses'), 'user/' . $form['#user']->uid . '/edit/email-addresses')));
+    // Hide the core e-mail field to avoid duplicate management points.
+    $form['account']['mail']['#access'] = FALSE;
   }
 }
 
