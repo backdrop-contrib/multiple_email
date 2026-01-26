@@ -55,14 +55,22 @@ function multiple_email_enable() {
  * Implements hook_schema().
  */
 function multiple_email_schema() {
-  $schema_version = backdrop_get_installed_schema_version('multiple_email');
-
-  // If the module is not installed but the table already exists (leftover),
-  // drop it so installation can recreate it cleanly. We still return schema
-  // info so Backdrop's schema cache remains valid and tools like drush/bee can
-  // introspect fields without hitting NULL.
-  if (($schema_version === SCHEMA_UNINSTALLED || $schema_version === NULL) && db_table_exists('multiple_email')) {
-    db_drop_table('multiple_email');
+  // Always drop any existing table before returning the schema to guarantee
+  // a clean create, even on sites that may have leftover data.
+  if (db_table_exists('multiple_email')) {
+    try {
+      db_drop_table('multiple_email');
+    }
+    catch (Exception $e) {
+      watchdog('multiple_email', 'Failed to drop existing multiple_email table during install: @msg', array('@msg' => $e->getMessage()), WATCHDOG_WARNING);
+      // Attempt a direct SQL drop as a fallback.
+      try {
+        db_query('DROP TABLE {multiple_email}');
+      }
+      catch (Exception $e2) {
+        watchdog('multiple_email', 'Fallback drop for multiple_email table also failed: @msg', array('@msg' => $e2->getMessage()), WATCHDOG_WARNING);
+      }
+    }
   }
 
   $schema['multiple_email'] = array(
